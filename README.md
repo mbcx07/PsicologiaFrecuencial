@@ -15,6 +15,7 @@ Landing estática con Firebase y cobros por Mercado Pago.
 
 ## Diseño y panel
 - La portada replica la experiencia de la versión desplegada en la nube: hero, cards de recursos y panel inferior para cargar contenido.
+- El héroe y las secciones ya no usan datos estáticos: toman en vivo las colecciones de Firestore.
 - Usa el botón "Abrir panel de carga" o desplázate al final para abrir los formularios de libros, meditaciones e imágenes.
 - Los elementos cargados aparecen al instante en la biblioteca y en el bloque destacado del héroe.
 

@@ -33,6 +33,7 @@ const storage = getStorage(app);
 
 const mpPublicKey = "APP_USR-7d17980f-c2ee-47d1-990c-de2e3d4c4fc0";
 const mp = new MercadoPago(mpPublicKey, { locale: "es-AR" });
+const placeholderCover = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==";
 
 const firebaseStatus = document.getElementById("firebase-status");
 const mpStatus = document.getElementById("mp-status");
@@ -43,9 +44,17 @@ const heroTitle = document.getElementById("hero-title");
 const heroDesc = document.getElementById("hero-desc");
 const highlightPill = document.getElementById("highlight-pill");
 const heroCard = document.getElementById("hero-card");
+const heroDiscount = document.getElementById("hero-discount");
+const heroCategory = document.getElementById("hero-category");
+const heroPriceMXN = document.getElementById("hero-price-mxn");
+const heroPriceUSD = document.getElementById("hero-price-usd");
+const heroPrices = document.getElementById("hero-prices");
 
 firebaseStatus.textContent = "Firebase listo";
 firebaseStatus.classList.add("chip--success");
+heroCover.src = placeholderCover;
+heroCover.classList.add("cover--empty");
+heroPrices.style.display = "none";
 
 const safeNumber = (value) => {
   const num = Number(value);
@@ -56,7 +65,7 @@ const renderBlogCard = (data) => {
   const card = document.createElement("article");
   card.className = "blog-card";
   card.innerHTML = `
-    <div class="meta">${data.author || "Moïses Beltrán Castro"} · ${data.category}</div>
+    <div class="meta">${data.author || "Moïses Beltrán Castro"} · ${data.category || "Recurso"}</div>
     <h4>${data.title ?? "Sin título"}</h4>
     <p class="muted">${data.description ?? "Contenido pendiente"}</p>
     ${data.url ? `<a class="link" href="${data.url}" target="_blank" rel="noopener">Leer ahora</a>` : ""}
@@ -68,8 +77,8 @@ const renderResourceCard = (data) => {
   const card = document.createElement("article");
   card.className = "resource-card";
   const discount = safeNumber(data.discount);
-  const priceMXN = data.priceMXN ?? data.price ?? null;
-  const priceUSD = data.priceUSD ?? null;
+  const priceMXN = safeNumber(data.priceMXN ?? data.price);
+  const priceUSD = safeNumber(data.priceUSD);
   const cover = data.cover || data.url;
   card.innerHTML = `
     ${discount ? `<span class="badge badge--discount">-${discount}%</span>` : ""}
@@ -114,7 +123,13 @@ const blogList = document.getElementById("blog-list");
 
 const updateHero = (items) => {
   if (!items.length) {
-    highlightPill.textContent = "Carga tus recursos en Firestore";
+    highlightPill.textContent = "Sin contenido en vivo";
+    heroCategory.textContent = "En vivo";
+    heroCategory.classList.add("chip--outline");
+    heroDiscount.classList.add("pill--hidden");
+    heroCover.src = placeholderCover;
+    heroCover.classList.add("cover--empty");
+    heroPrices.style.display = "none";
     return;
   }
   const latest = [...items].sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0))[0];
@@ -122,13 +137,37 @@ const updateHero = (items) => {
   heroTitle.textContent = latest.title ?? "Recurso";
   heroDesc.textContent = latest.description ?? "";
   heroAuthor.textContent = latest.author || "Moïses Beltrán Castro";
-  if (latest.cover || latest.url) {
-    heroCover.src = latest.cover || latest.url;
+  heroCategory.textContent = latest.category === "meditations" ? "Meditación" : "Libro";
+  heroCategory.classList.remove("chip--outline");
+
+  const hasCover = Boolean(latest.cover || latest.url);
+  heroCover.src = hasCover ? latest.cover || latest.url : placeholderCover;
+  heroCover.classList.toggle("cover--empty", !hasCover);
+
+  const discount = safeNumber(latest.discount);
+  if (discount) {
+    heroDiscount.textContent = `Oferta · -${discount}%`;
+    heroDiscount.classList.remove("pill--hidden");
+  } else {
+    heroDiscount.classList.add("pill--hidden");
   }
+
+  const priceMXN = safeNumber(latest.priceMXN ?? latest.price);
+  const priceUSD = safeNumber(latest.priceUSD);
+  heroPriceMXN.textContent = priceMXN ? `$${priceMXN} MXN` : "";
+  heroPriceUSD.textContent = priceUSD ? `$${priceUSD} USD` : "";
+  heroPrices.style.display = priceMXN || priceUSD ? "flex" : "none";
 };
 
 const renderCollections = () => {
   const state = { books: [], meditations: [] };
+
+  const renderEmptyCard = (container, message) => {
+    const empty = document.createElement("article");
+    empty.className = "blog-card ghost";
+    empty.innerHTML = message;
+    container.appendChild(empty);
+  };
 
   const rebuildBlogAndHero = () => {
     const combined = [...state.books, ...state.meditations].sort(
@@ -136,7 +175,10 @@ const renderCollections = () => {
     );
     blogList.innerHTML = "";
     if (!combined.length) {
-      blogList.innerHTML = '<article class="blog-card ghost">Carga posts en Firestore para verlos aquí.</article>';
+      renderEmptyCard(
+        blogList,
+        "<strong>Sin contenido</strong><br>Publica libros o meditaciones para verlos aquí al instante."
+      );
     } else {
       combined.forEach((item) => blogList.appendChild(renderBlogCard(item)));
     }
@@ -147,21 +189,36 @@ const renderCollections = () => {
     onSnapshot(collection(db, name), (snapshot) => {
       if (name === "gallery") {
         galleryList.innerHTML = "";
-        snapshot.forEach((docSnap) => {
-          galleryList.appendChild(renderGalleryCard(docSnap.data()));
-        });
+        const galleryItems = snapshot.docs.map((docSnap) => docSnap.data());
+        if (!galleryItems.length) {
+          renderEmptyCard(
+            galleryList,
+            "Sube imágenes en la pestaña Zona test y se verán aquí con su descripción."
+          );
+          return;
+        }
+        galleryItems
+          .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0))
+          .forEach((item) => {
+            galleryList.appendChild(renderGalleryCard(item));
+          });
         return;
       }
 
       const container = name === "books" ? sections.books : sections.meditations;
       container.innerHTML = "";
-      state[name] = [];
+      state[name] = snapshot.docs
+        .map((docSnap) => ({ ...docSnap.data(), id: docSnap.id, category: name }))
+        .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
 
-      snapshot.forEach((docSnap) => {
-        const data = { ...docSnap.data(), id: docSnap.id, category: name };
-        state[name].push(data);
-        container.appendChild(renderResourceCard(data));
-      });
+      if (!state[name].length) {
+        renderEmptyCard(
+          container,
+          `Sin ${name === "books" ? "libros" : "audios"} aún. Usa el panel de admin para cargarlos en vivo.`
+        );
+      } else {
+        state[name].forEach((data) => container.appendChild(renderResourceCard(data)));
+      }
 
       rebuildBlogAndHero();
     });

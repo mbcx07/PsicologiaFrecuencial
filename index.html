@@ -50,19 +50,19 @@
     </div>
     <div class="hero__card" id="hero-card">
       <div class="card-head">
-        <div class="pill pill--success">Oferta · -70%</div>
-        <button class="icon-btn" aria-label="carrito">🛒</button>
+        <div id="hero-discount" class="pill pill--success pill--hidden">Oferta</div>
+        <span class="chip chip--outline" id="hero-category">En vivo</span>
       </div>
       <div class="cover-frame">
-        <img id="hero-cover" src="https://images.unsplash.com/photo-1471109880861-75cec67f8b68?auto=format&fit=crop&w=800&q=80" alt="Portada destacada">
+        <img id="hero-cover" src="" alt="Portada destacada" class="cover--empty">
       </div>
       <div class="card-body">
-        <p class="eyebrow" id="hero-author">Moïses Beltrán Castro</p>
-        <h3 id="hero-title">Crianza consciente: el poder del apego para criar hijos seguros y felices</h3>
-        <p class="muted" id="hero-desc">Libro guía para construir presencia consciente y sanar memorias emocionales.</p>
-        <div class="price-row">
-          <div class="price">$299 <span>MXN</span></div>
-          <div class="price price--muted">$15 <span>USD</span></div>
+        <p class="eyebrow" id="hero-author">—</p>
+        <h3 id="hero-title">Esperando contenido desde Firebase</h3>
+        <p class="muted" id="hero-desc">Carga libros o meditaciones en Firestore para mostrarlos aquí.</p>
+        <div class="price-row" id="hero-prices">
+          <div class="price" id="hero-price-mxn"></div>
+          <div class="price price--muted" id="hero-price-usd"></div>
         </div>
       </div>
     </div>
@@ -76,9 +76,7 @@
       </div>
       <a class="chip" href="#biblioteca">Ver todo el blog</a>
     </div>
-    <div class="card-row" id="blog-list">
-      <article class="blog-card ghost">Carga tus posts en Firestore (colección <strong>books</strong> o <strong>meditations</strong>) y aparecerán aquí.</article>
-    </div>
+    <div class="card-row" id="blog-list"></div>
   </section>
 
   <section id="libros" class="section section--split">
