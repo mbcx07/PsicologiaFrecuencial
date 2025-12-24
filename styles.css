@@ -259,6 +259,10 @@ a { color: inherit; }
 .admin__header { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 14px; flex-wrap: wrap; }
 .auth { display: flex; align-items: center; gap: 10px; }
 .auth__status { padding: 8px 12px; border-radius: 10px; border: 1px solid var(--border); background: rgba(255,255,255,0.05); font-weight: 700; }
+.admin__config { display: flex; justify-content: space-between; gap: 12px; align-items: center; padding: 14px 16px; margin: 10px 0 18px; background: var(--panel); border: 1px solid var(--border); border-radius: 12px; box-shadow: var(--shadow); }
+.config-form { display: flex; align-items: flex-end; gap: 10px; flex-wrap: wrap; }
+.config-form label { display: flex; flex-direction: column; gap: 6px; font-weight: 700; color: var(--text); }
+.config-form input { min-width: 240px; }
 .tabs { display: flex; gap: 10px; }
 .tab {
   padding: 10px 12px;

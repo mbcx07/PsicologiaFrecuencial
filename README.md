@@ -22,6 +22,7 @@ Landing estática con Firebase y cobros por Mercado Pago.
 - Los elementos cargados aparecen al instante en la biblioteca, en el feed del blog y en el héroe destacado.
 - Si las colecciones están vacías, el cliente crea contenido de demo (libro, meditación, posts y una imagen) para que veas el diseño completo sin datos estáticos.
 - El botón **Modo demo** activa un administrador falso y guarda libros, meditaciones, blog e imágenes en `localStorage`, útil cuando Firestore/Google Auth no responde. También carga datos de demo desde la primera vista para que todo se vea poblado.
+- Usa el bloque **Configuración** del panel para pegar tu token de `google-site-verification`; se guarda en `config/site` o en modo demo local si Firebase falla y lo coloca en la meta tag para Search Console sin re-publicar.
 
 ## Desarrollo local
 Al ser un sitio estático no necesitas dependencias. Abre `index.html` en el navegador o sirve la carpeta con tu servidor HTTP favorito.

@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="google-site-verification" content="" id="google-site-verification">
   <title>Psicología Frecuencial</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -143,6 +144,21 @@
         <button class="tab" data-tab="posts">Blog</button>
         <button class="tab" data-tab="gallery">Zona test</button>
       </div>
+    </div>
+
+    <div class="admin__config">
+      <div>
+        <p class="eyebrow">Configuración</p>
+        <p class="muted">Define el token de Google Search Console en Firestore (config/site) o úsalo en modo demo.</p>
+      </div>
+      <form id="site-config-form" class="config-form">
+        <label>
+          google-site-verification
+          <input id="site-verification" name="googleSiteVerification" placeholder="pega tu token" />
+        </label>
+        <button class="btn btn--ghost" type="submit">Guardar</button>
+        <span class="chip chip--outline" id="site-config-status">Sincronizando…</span>
+      </form>
     </div>
 
     <div id="toast" class="toast" role="status" aria-live="polite"></div>

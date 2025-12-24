@@ -5,6 +5,7 @@ import {
   collection,
   addDoc,
   updateDoc,
+  setDoc,
   onSnapshot,
   doc,
   getDoc,
@@ -123,6 +124,10 @@ const localState = (() => {
 const firebaseStatus = document.getElementById("firebase-status");
 const mpStatus = document.getElementById("mp-status");
 const galleryList = document.getElementById("gallery-list");
+const siteVerificationInput = document.getElementById("site-verification");
+const siteConfigForm = document.getElementById("site-config-form");
+const siteConfigStatus = document.getElementById("site-config-status");
+const verificationMeta = document.querySelector("meta[name='google-site-verification']");
 const heroCover = document.getElementById("hero-cover");
 const heroAuthor = document.getElementById("hero-author");
 const heroTitle = document.getElementById("hero-title");
@@ -149,6 +154,19 @@ const panels = document.querySelectorAll(".tab-panel");
 const toast = document.getElementById("toast");
 const demoButton = document.createElement("button");
 
+const siteConfigKey = "pf-site-config";
+const defaultSiteConfig = { googleSiteVerification: "" };
+
+let siteConfig = (() => {
+  try {
+    const stored = localStorage.getItem(siteConfigKey);
+    if (stored) return { ...defaultSiteConfig, ...JSON.parse(stored) };
+  } catch (err) {
+    console.warn("No se pudo leer la configuración local", err);
+  }
+  return { ...defaultSiteConfig };
+})();
+
 demoButton.className = "btn btn--ghost";
 demoButton.type = "button";
 demoButton.id = "demo-button";
@@ -159,6 +177,30 @@ firebaseStatus.textContent = "Firebase listo";
 firebaseStatus.classList.add("chip--success");
 heroCover.src = placeholderCover;
 heroCover.classList.add("cover--empty");
+
+const persistSiteConfig = () => {
+  try {
+    localStorage.setItem(siteConfigKey, JSON.stringify(siteConfig));
+  } catch (err) {
+    console.warn("No se pudo persistir config", err);
+  }
+};
+
+const applyVerificationToken = (token, source = "local") => {
+  if (verificationMeta) {
+    verificationMeta.setAttribute("content", token || "");
+  }
+  if (siteVerificationInput) {
+    siteVerificationInput.value = token || "";
+  }
+  if (siteConfigStatus) {
+    siteConfigStatus.textContent = token
+      ? `Activo (${source})`
+      : `Vacío (${source})`;
+    siteConfigStatus.classList.toggle("chip--warning", !token);
+    siteConfigStatus.classList.add("chip--outline");
+  }
+};
 heroPrices.style.display = "none";
 
 const persistLocalState = () => {
@@ -415,6 +457,7 @@ const switchToLocal = (reason) => {
   firebaseStatus.classList.remove("chip--success");
   firebaseStatus.classList.add("chip--warning");
   Object.entries(localState).forEach(([key, items]) => updateState(key, items));
+  applyVerificationToken(siteConfig.googleSiteVerification || "", "demo");
   showToast("Modo demo activado con datos falsos", "success");
 };
 
@@ -430,6 +473,21 @@ const preloadDemoView = () => {
   firebaseStatus.textContent = "Demo visible mientras carga Firebase";
   firebaseStatus.classList.add("chip--outline");
   Object.entries(localState).forEach(([key, items]) => updateState(key, items));
+};
+
+const loadSiteConfig = async () => {
+  applyVerificationToken(siteConfig.googleSiteVerification || "", "local");
+  try {
+    const snap = await getDoc(doc(db, "config", "site"));
+    const token = snap.data()?.googleSiteVerification || siteConfig.googleSiteVerification || "";
+    siteConfig.googleSiteVerification = token;
+    persistSiteConfig();
+    applyVerificationToken(token, snap.exists() ? "Firebase" : "local");
+  } catch (err) {
+    console.error("No se pudo cargar la configuración del sitio", err);
+    applyVerificationToken(siteConfig.googleSiteVerification || "", "demo");
+    if (siteConfigStatus) siteConfigStatus.textContent = "Demo local";
+  }
 };
 
 const updateHero = (items) => {
@@ -691,9 +749,40 @@ handleSubmit("meditations", meditationForm, false, "meditations");
 handleSubmit("gallery", document.getElementById("gallery-form"), true, "gallery");
 handleSubmit("posts", postForm, false, "posts");
 
+siteConfigForm?.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  if (!isAdmin && !demoAdmin) {
+    showToast("Inicia sesión con Google o activa modo demo para guardar", "error");
+    return;
+  }
+  const token = siteVerificationInput?.value.trim() || "";
+  siteConfig.googleSiteVerification = token;
+  persistSiteConfig();
+  applyVerificationToken(token, useLocal || demoAdmin ? "demo" : "Firebase");
+
+  if (useLocal || demoAdmin) {
+    showToast("Token guardado en modo demo/local", "success");
+    return;
+  }
+
+  try {
+    await setDoc(
+      doc(db, "config", "site"),
+      { googleSiteVerification: token, updatedAt: serverTimestamp() },
+      { merge: true }
+    );
+    showToast("google-site-verification guardado", "success");
+  } catch (err) {
+    console.error(err);
+    showToast("No se pudo guardar en Firebase; usando modo demo", "error");
+    switchToLocal("Config no guardada");
+  }
+});
+
 preloadDemoView();
 renderCollections();
 seedDemoContent();
+loadSiteConfig();
 
 onAuthStateChanged(auth, (user) => {
   currentUser = user;
