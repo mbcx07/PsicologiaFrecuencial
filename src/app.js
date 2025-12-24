@@ -51,6 +51,8 @@ const adminEmail = "moises.beltranx7@gmail.com";
 const defaultAuthor = "Moïses Beltrán Castro";
 let currentUser = null;
 let isAdmin = false;
+let demoAdmin = false;
+let useLocal = false;
 
 const demoContent = {
   books: [
@@ -108,6 +110,16 @@ const demoContent = {
   ],
 };
 
+const localState = (() => {
+  try {
+    const stored = localStorage.getItem("pf-local-state");
+    if (stored) return JSON.parse(stored);
+  } catch (err) {
+    console.warn("No se pudo leer localStorage", err);
+  }
+  return structuredClone(demoContent);
+})();
+
 const firebaseStatus = document.getElementById("firebase-status");
 const mpStatus = document.getElementById("mp-status");
 const galleryList = document.getElementById("gallery-list");
@@ -135,12 +147,27 @@ const meditationForm = document.getElementById("meditation-form");
 const tabs = document.querySelectorAll(".tab");
 const panels = document.querySelectorAll(".tab-panel");
 const toast = document.getElementById("toast");
+const demoButton = document.createElement("button");
+
+demoButton.className = "btn btn--ghost";
+demoButton.type = "button";
+demoButton.id = "demo-button";
+demoButton.textContent = "Modo demo";
+authButton?.parentNode?.insertBefore(demoButton, authButton.nextSibling);
 
 firebaseStatus.textContent = "Firebase listo";
 firebaseStatus.classList.add("chip--success");
 heroCover.src = placeholderCover;
 heroCover.classList.add("cover--empty");
 heroPrices.style.display = "none";
+
+const persistLocalState = () => {
+  try {
+    localStorage.setItem("pf-local-state", JSON.stringify(localState));
+  } catch (err) {
+    console.warn("No se pudo guardar el estado local", err);
+  }
+};
 
 const showToast = (message, tone = "success") => {
   if (!toast) return;
@@ -169,6 +196,13 @@ const editingState = {
   books: null,
   meditations: null,
   posts: null,
+};
+
+const state = {
+  books: [],
+  meditations: [],
+  posts: [],
+  gallery: [],
 };
 
 const seedDemoContent = async () => {
@@ -290,7 +324,7 @@ const renderAdminRow = (data, collectionKey, formRef, containerRef) => {
     if (!isAdmin) return;
     const ok = confirm("¿Eliminar este elemento?");
     if (!ok) return;
-    await deleteDoc(doc(db, collectionKey, data.id));
+    await deleteEntry(collectionKey, data.id);
     showToast("Eliminado", "success");
     if (editingState[collectionKey] === data.id) {
       resetForm(formRef, collectionKey);
@@ -324,9 +358,8 @@ const updateFormLock = () => {
   const reason = isAdmin
     ? "Modo edición"
     : "Solo lectura · Inicia sesión con tu Google autorizado";
-  authStatus.textContent = isAdmin
-    ? `Admin: ${currentUser?.email}`
-    : reason;
+  const label = demoAdmin ? "Admin demo" : `Admin: ${currentUser?.email}`;
+  authStatus.textContent = isAdmin ? label : reason;
   authButton.textContent = isAdmin ? "Salir" : "Ingresar con Google";
 
   [bookForm, meditationForm, postForm, document.getElementById("gallery-form")]
@@ -340,6 +373,15 @@ const updateFormLock = () => {
     });
 };
 updateFormLock();
+
+const activateDemoAdmin = () => {
+  demoAdmin = true;
+  isAdmin = true;
+  currentUser = { email: adminEmail };
+  switchToLocal("Vista previa sin autenticación");
+  updateFormLock();
+  showToast("Modo demo admin activo", "success");
+};
 
 const populateForm = (form, data, collectionKey) => {
   editingState[collectionKey] = data.id;
@@ -364,6 +406,30 @@ const resetForm = (form, collectionKey) => {
     submit.dataset.defaultText = submit.dataset.defaultText || submit.textContent;
     submit.textContent = submit.dataset.defaultText;
   }
+};
+
+const switchToLocal = (reason) => {
+  if (useLocal) return;
+  useLocal = true;
+  firebaseStatus.textContent = `Modo demo local · ${reason || "Sin Firebase"}`;
+  firebaseStatus.classList.remove("chip--success");
+  firebaseStatus.classList.add("chip--warning");
+  Object.entries(localState).forEach(([key, items]) => updateState(key, items));
+  showToast("Modo demo activado con datos falsos", "success");
+};
+
+const ensureLocalIds = () => {
+  Object.keys(localState).forEach((key) => {
+    localState[key] = mapWithIds(localState[key] || [], key);
+  });
+  persistLocalState();
+};
+ensureLocalIds();
+
+const preloadDemoView = () => {
+  firebaseStatus.textContent = "Demo visible mientras carga Firebase";
+  firebaseStatus.classList.add("chip--outline");
+  Object.entries(localState).forEach(([key, items]) => updateState(key, items));
 };
 
 const updateHero = (items) => {
@@ -404,104 +470,130 @@ const updateHero = (items) => {
   heroPrices.style.display = priceMXN || priceUSD ? "flex" : "none";
 };
 
-const renderCollections = () => {
-  const state = { books: [], meditations: [], posts: [] };
-
-  const renderEmptyCard = (container, message) => {
-    const empty = document.createElement("article");
-    empty.className = "blog-card ghost";
-    empty.innerHTML = message;
-    container.appendChild(empty);
-  };
-
-  const rebuildHero = () => {
-    const combined = [...state.books, ...state.meditations].sort(
-      (a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0)
+const deleteEntry = async (collectionKey, id) => {
+  if (useLocal) {
+    localState[collectionKey] = (localState[collectionKey] || []).filter(
+      (item) => item.id !== id
     );
-    updateHero(combined);
-  };
+    persistLocalState();
+    updateState(collectionKey, localState[collectionKey]);
+    return;
+  }
+  await deleteDoc(doc(db, collectionKey, id));
+};
 
-  const rebuildBlog = () => {
-    blogList.innerHTML = "";
-    blogStream.innerHTML = "";
-    if (!state.posts.length) {
+const renderEmptyCard = (container, message) => {
+  const empty = document.createElement("article");
+  empty.className = "blog-card ghost";
+  empty.innerHTML = message;
+  container.appendChild(empty);
+};
+
+const mapWithIds = (items, key) =>
+  items.map((item, idx) => ({
+    ...item,
+    id: item.id || `${key}-${Date.now()}-${idx}`,
+    category: key,
+  }));
+
+const rebuildHero = () => {
+  const combined = [...state.books, ...state.meditations].sort(
+    (a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0)
+  );
+  updateHero(combined);
+};
+
+const rebuildBlog = () => {
+  blogList.innerHTML = "";
+  blogStream.innerHTML = "";
+  if (!state.posts.length) {
+    renderEmptyCard(
+      blogList,
+      "<strong>Sin entradas</strong><br>Publica artículos en la pestaña Blog para verlos aquí."
+    );
+    return;
+  }
+  state.posts.forEach((item) => {
+    blogList.appendChild(renderBlogCard(item));
+    blogStream.appendChild(renderBlogStreamCard(item));
+  });
+};
+
+const rebuildGallery = () => {
+  galleryList.innerHTML = "";
+  if (!state.gallery.length) {
+    renderEmptyCard(
+      galleryList,
+      "Sube imágenes en la pestaña Zona test y se verán aquí con su descripción."
+    );
+    return;
+  }
+  state.gallery
+    .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0))
+    .forEach((item) => galleryList.appendChild(renderGalleryCard(item)));
+};
+
+const rebuildStorefronts = () => {
+  [
+    { name: "books", container: sections.books, empty: "libros" },
+    { name: "meditations", container: sections.meditations, empty: "audios" },
+  ].forEach(({ name, container, empty }) => {
+    container.innerHTML = "";
+    if (!state[name].length) {
       renderEmptyCard(
-        blogList,
-        "<strong>Sin entradas</strong><br>Publica artículos en la pestaña Blog para verlos aquí."
+        container,
+        `Sin ${empty} aún. Usa el panel de admin para cargarlos en vivo.`
       );
       return;
     }
-    state.posts.forEach((item) => {
-      blogList.appendChild(renderBlogCard(item));
-      blogStream.appendChild(renderBlogStreamCard(item));
-    });
-  };
+    state[name].forEach((data) => container.appendChild(renderResourceCard(data)));
+  });
+};
 
+const rebuildAdminLists = () => {
+  adminBooks.innerHTML = "";
+  adminMeditations.innerHTML = "";
+  adminPosts.innerHTML = "";
+
+  state.books.forEach((data) => renderAdminRow(data, "books", bookForm, adminBooks));
+  state.meditations.forEach((data) =>
+    renderAdminRow(data, "meditations", meditationForm, adminMeditations)
+  );
+  state.posts.forEach((data) => renderAdminRow(data, "posts", postForm, adminPosts));
+};
+
+const rebuildEverything = () => {
+  rebuildHero();
+  rebuildStorefronts();
+  rebuildBlog();
+  rebuildGallery();
+  rebuildAdminLists();
+};
+
+const updateState = (name, items) => {
+  state[name] = mapWithIds(items, name).sort(
+    (a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0)
+  );
+  rebuildEverything();
+};
+
+const renderCollections = () => {
   const listen = (name) => {
-    onSnapshot(collection(db, name), (snapshot) => {
-      if (name === "gallery") {
-        galleryList.innerHTML = "";
-        const galleryItems = snapshot.docs.map((docSnap) => docSnap.data());
-        if (!galleryItems.length) {
-          renderEmptyCard(
-            galleryList,
-            "Sube imágenes en la pestaña Zona test y se verán aquí con su descripción."
-          );
-          return;
-        }
-        galleryItems
-          .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0))
-          .forEach((item) => {
-            galleryList.appendChild(renderGalleryCard(item));
-          });
-        return;
+    onSnapshot(
+      collection(db, name),
+      (snapshot) => {
+        const docs = snapshot.docs.map((docSnap) => ({
+          ...docSnap.data(),
+          id: docSnap.id,
+          category: name,
+        }));
+        updateState(name, docs);
+      },
+      (err) => {
+        console.warn(`Snapshot ${name} falló, usando modo local`, err);
+        switchToLocal(`Sin permisos de lectura en ${name}`);
       }
-
-      const container =
-        name === "books"
-          ? sections.books
-          : name === "meditations"
-            ? sections.meditations
-            : null;
-
-      state[name] = snapshot.docs
-        .map((docSnap) => ({ ...docSnap.data(), id: docSnap.id, category: name }))
-        .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
-
-      if (container) {
-        container.innerHTML = "";
-        if (!state[name].length) {
-          renderEmptyCard(
-            container,
-            `Sin ${name === "books" ? "libros" : "audios"} aún. Usa el panel de admin para cargarlos en vivo.`
-          );
-        } else {
-          state[name].forEach((data) => container.appendChild(renderResourceCard(data)));
-        }
-      }
-
-      if (name === "books") {
-        adminBooks.innerHTML = "";
-        state.books.forEach((data) =>
-          renderAdminRow(data, "books", bookForm, adminBooks)
-        );
-      }
-
-      if (name === "meditations") {
-        adminMeditations.innerHTML = "";
-        state.meditations.forEach((data) =>
-          renderAdminRow(data, "meditations", meditationForm, adminMeditations)
-        );
-      }
-
-      if (name === "posts") {
-        adminPosts.innerHTML = "";
-        state.posts.forEach((data) => renderAdminRow(data, "posts", postForm, adminPosts));
-        rebuildBlog();
-      }
-
-      rebuildHero();
-    });
+    );
   };
 
   listen("books");
@@ -557,20 +649,39 @@ const handleSubmit = (collectionName, form, needsUpload, key) => {
       }
 
       const docId = editingState[key];
-      if (docId) {
-        const sanitized = Object.fromEntries(
-          Object.entries(payload).filter(([, v]) => v !== undefined)
-        );
-        await updateDoc(doc(db, collectionName, docId), sanitized);
-        showToast(`${friendly[collectionName] || "Elemento"} actualizado`, "success");
+      if (useLocal) {
+        if (docId) {
+          localState[collectionName] = (localState[collectionName] || []).map((item) =>
+            item.id === docId ? { ...item, ...payload, id: docId } : item
+          );
+          showToast(`${friendly[collectionName] || "Elemento"} actualizado`, "success");
+        } else {
+          const id = `${collectionName}-${Date.now()}`;
+          localState[collectionName] = [
+            { ...payload, id, createdAt: { seconds: Date.now() / 1000 } },
+            ...(localState[collectionName] || []),
+          ];
+          showToast(`${friendly[collectionName] || "Elemento"} publicado`, "success");
+        }
+        persistLocalState();
+        updateState(collectionName, localState[collectionName]);
       } else {
-        await addDoc(collection(db, collectionName), payload);
-        showToast(`${friendly[collectionName] || "Elemento"} publicado`, "success");
+        if (docId) {
+          const sanitized = Object.fromEntries(
+            Object.entries(payload).filter(([, v]) => v !== undefined)
+          );
+          await updateDoc(doc(db, collectionName, docId), sanitized);
+          showToast(`${friendly[collectionName] || "Elemento"} actualizado`, "success");
+        } else {
+          await addDoc(collection(db, collectionName), payload);
+          showToast(`${friendly[collectionName] || "Elemento"} publicado`, "success");
+        }
       }
       resetForm(form, key);
     } catch (err) {
       console.error(err);
       showToast("Error guardando", "error");
+      switchToLocal("Guardado bloqueado en Firebase");
     }
   });
 };
@@ -580,12 +691,14 @@ handleSubmit("meditations", meditationForm, false, "meditations");
 handleSubmit("gallery", document.getElementById("gallery-form"), true, "gallery");
 handleSubmit("posts", postForm, false, "posts");
 
+preloadDemoView();
 renderCollections();
 seedDemoContent();
 
 onAuthStateChanged(auth, (user) => {
   currentUser = user;
   isAdmin = Boolean(user?.email === adminEmail);
+  demoAdmin = false;
   updateFormLock();
   if (user && isAdmin) {
     showToast("Acceso admin activo", "success");
@@ -597,6 +710,14 @@ onAuthStateChanged(auth, (user) => {
 });
 
 authButton?.addEventListener("click", async () => {
+  if (demoAdmin) {
+    demoAdmin = false;
+    isAdmin = false;
+    currentUser = null;
+    updateFormLock();
+    showToast("Modo demo cerrado", "success");
+    return;
+  }
   if (isAdmin) {
     await signOut(auth);
     return;
@@ -610,6 +731,8 @@ authButton?.addEventListener("click", async () => {
     }
   }
 });
+
+demoButton?.addEventListener("click", activateDemoAdmin);
 
 const bootstrapPayment = async () => {
   try {

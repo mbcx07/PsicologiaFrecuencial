@@ -21,6 +21,7 @@ Landing estática con Firebase y cobros por Mercado Pago.
 - Inicia sesión con Google usando la cuenta `moises.beltranx7@gmail.com` para habilitar edición y borrado.
 - Los elementos cargados aparecen al instante en la biblioteca, en el feed del blog y en el héroe destacado.
 - Si las colecciones están vacías, el cliente crea contenido de demo (libro, meditación, posts y una imagen) para que veas el diseño completo sin datos estáticos.
+- El botón **Modo demo** activa un administrador falso y guarda libros, meditaciones, blog e imágenes en `localStorage`, útil cuando Firestore/Google Auth no responde. También carga datos de demo desde la primera vista para que todo se vea poblado.
 
 ## Desarrollo local
 Al ser un sitio estático no necesitas dependencias. Abre `index.html` en el navegador o sirve la carpeta con tu servidor HTTP favorito.
