@@ -74,9 +74,13 @@
         <p class="eyebrow">Blog Frecuencial</p>
         <h2>Explora el conocimiento que transforma tu vibración</h2>
       </div>
-      <a class="chip" href="#biblioteca">Ver todo el blog</a>
+      <div class="section__actions">
+        <a class="chip" href="#biblioteca">Ver todo el blog</a>
+        <button class="chip chip--primary" id="blog-refresh" type="button">Actualizar</button>
+      </div>
     </div>
     <div class="card-row" id="blog-list"></div>
+    <div class="blog-grid" id="blog-stream"></div>
   </section>
 
   <section id="libros" class="section section--split">
@@ -129,9 +133,14 @@
         <p class="eyebrow">Admin panel</p>
         <h2>Gestión de realidad digital</h2>
       </div>
+      <div class="auth">
+        <div class="auth__status" id="auth-status">Solo lectura</div>
+        <button class="btn btn--ghost" id="auth-button" type="button">Ingresar con Google</button>
+      </div>
       <div class="tabs">
         <button class="tab active" data-tab="libros">Libros</button>
         <button class="tab" data-tab="audios">Audios</button>
+        <button class="tab" data-tab="posts">Blog</button>
         <button class="tab" data-tab="gallery">Zona test</button>
       </div>
     </div>
@@ -177,6 +186,21 @@
         </div>
       </form>
 
+      <form id="post-form" class="form" data-collection="posts">
+        <h4>Blog</h4>
+        <div class="field-row">
+          <label>Título<input name="title" placeholder="Entrada del blog" required></label>
+          <label>Categoría<input name="category" placeholder="Noticias"></label>
+        </div>
+        <label>URL portada / cover<input name="cover" type="url" placeholder="https://"></label>
+        <label>URL artículo<input name="url" type="url" placeholder="https://"></label>
+        <label>Descripción<textarea name="description" rows="3" placeholder="Resumen"></textarea></label>
+        <div class="form__actions">
+          <button class="btn btn--primary" type="submit">Publicar</button>
+          <button class="btn btn--ghost" type="reset">Cancelar</button>
+        </div>
+      </form>
+
       <form id="gallery-form" class="form" enctype="multipart/form-data">
         <h4>Galería</h4>
         <label>Título<input name="title" placeholder="Imagen" required></label>
@@ -188,6 +212,30 @@
           <button class="btn btn--ghost" type="reset">Cancelar</button>
         </div>
       </form>
+    </div>
+
+    <div class="admin__lists">
+      <div class="admin-list" id="list-books">
+        <div class="admin-list__head">
+          <h4>Libros publicados</h4>
+          <span class="chip chip--outline">En vivo</span>
+        </div>
+        <div class="admin-list__body" id="admin-books"></div>
+      </div>
+      <div class="admin-list" id="list-meditations">
+        <div class="admin-list__head">
+          <h4>Meditaciones publicadas</h4>
+          <span class="chip chip--outline">En vivo</span>
+        </div>
+        <div class="admin-list__body" id="admin-meditations"></div>
+      </div>
+      <div class="admin-list" id="list-posts">
+        <div class="admin-list__head">
+          <h4>Entradas del blog</h4>
+          <span class="chip chip--outline">En vivo</span>
+        </div>
+        <div class="admin-list__body" id="admin-posts"></div>
+      </div>
     </div>
   </section>
 

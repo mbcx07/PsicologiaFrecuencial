@@ -5,8 +5,9 @@ Landing estática con Firebase y cobros por Mercado Pago.
 ## Cómo usar
 1. Abre `index.html` desde cualquier hosting estático (GitHub Pages, Firebase Hosting, Vercel, Netlify).
 2. Firebase ya está configurado con la clave que compartiste. La app escribe/lee:
-   - `books`: enlaces de libros.
-   - `meditations`: audios o videos.
+   - `books`: enlaces de libros (portada, precios, descuento).
+   - `meditations`: audios o videos de frecuencias.
+   - `posts`: artículos del blog (título, categoría, cover, link externo).
    - `gallery`: imágenes (subidas a Storage o referenciadas por URL).
 3. Para activar los cobros:
    - Crea una preferencia en tu cuenta de Mercado Pago.
@@ -16,8 +17,9 @@ Landing estática con Firebase y cobros por Mercado Pago.
 ## Diseño y panel
 - La portada replica la experiencia de la versión desplegada en la nube: hero, cards de recursos y panel inferior para cargar contenido.
 - El héroe y las secciones ya no usan datos estáticos: toman en vivo las colecciones de Firestore.
-- Usa el botón "Abrir panel de carga" o desplázate al final para abrir los formularios de libros, meditaciones e imágenes.
-- Los elementos cargados aparecen al instante en la biblioteca y en el bloque destacado del héroe.
+- Usa el panel inferior para publicar libros, meditaciones, entradas del blog e imágenes.
+- Inicia sesión con Google usando la cuenta `moises.beltranx7@gmail.com` para habilitar edición y borrado.
+- Los elementos cargados aparecen al instante en la biblioteca, en el feed del blog y en el héroe destacado.
 
 ## Desarrollo local
 Al ser un sitio estático no necesitas dependencias. Abre `index.html` en el navegador o sirve la carpeta con tu servidor HTTP favorito.
