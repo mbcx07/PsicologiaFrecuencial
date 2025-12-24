@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Meditaciones | Psicología Frecuencial</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://sdk.mercadopago.com/js/v2"></script>
+</head>
+<body data-page="meditations">
+  <div class="aurora aurora--one"></div>
+  <div class="aurora aurora--two"></div>
+  <div class="grain"></div>
+
+  <header class="nav-shell">
+    <div class="brand">
+      <div class="brand__mark">Ψ</div>
+      <div class="brand__text">
+        <span class="brand__title">Psicología</span>
+        <span class="brand__subtitle">Frecuencial</span>
+      </div>
+    </div>
+    <nav class="nav">
+      <a href="index.html" class="nav__link">Inicio</a>
+      <a href="libros.html" class="nav__link">Libros</a>
+      <a href="meditaciones.html" class="nav__link nav__link--pill">Meditaciones</a>
+      <a href="blog.html" class="nav__link">Blog</a>
+      <a href="admin.html" class="nav__link">ADMIN</a>
+    </nav>
+  </header>
+
+  <main class="hero hero--sub">
+    <div class="hero__copy">
+      <p class="chip chip--outline">Meditaciones</p>
+      <h1>Audios y frecuencias para armonizar</h1>
+      <p class="lead">Cada audio viene de Firestore y muestra precios, enlaces y descripciones reales.</p>
+      <div class="cta-row">
+        <a class="btn btn--primary" href="#audios">Escuchar ahora</a>
+        <a class="btn btn--ghost" href="admin.html">Panel de administración</a>
+      </div>
+    </div>
+    <div class="hero__card">
+      <div class="card-head">
+        <div id="hero-discount" class="pill pill--success pill--hidden">Oferta</div>
+        <span class="chip chip--outline" id="hero-category">Meditación</span>
+      </div>
+      <div class="cover-frame">
+        <img id="hero-cover" src="" alt="Portada destacada" class="cover--empty">
+      </div>
+      <div class="card-body">
+        <p class="eyebrow" id="hero-author">—</p>
+        <h3 id="hero-title">Esperando contenido desde Firebase</h3>
+        <p class="muted" id="hero-desc">Sube audios para mostrarlos aquí.</p>
+        <div class="price-row" id="hero-prices">
+          <div class="price" id="hero-price-mxn"></div>
+          <div class="price price--muted" id="hero-price-usd"></div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <section id="audios" class="section section--split">
+    <div>
+      <p class="eyebrow">Audios de sanación</p>
+      <h2>Frecuencias puras</h2>
+      <p class="muted">Meditaciones guiadas y frecuencias que subas aparecerán con sus valores y descripción.</p>
+    </div>
+    <div class="card-carousel" id="meditation-cards"></div>
+  </section>
+
+  <footer class="footer">
+    <p class="eyebrow">Psicología Frecuencial</p>
+    <p class="muted">Meditaciones conectadas a Firestore.</p>
+  </footer>
+
+  <script type="module" src="src/app.js"></script>
+</body>
+</html>

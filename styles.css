@@ -113,6 +113,10 @@ a { color: inherit; }
   z-index: 1;
 }
 
+.hero--sub {
+  margin-top: 32px;
+}
+
 .hero__copy h1 {
   font-size: clamp(2.4rem, 4vw, 3.4rem);
   margin: 10px 0 12px;
@@ -167,6 +171,7 @@ a { color: inherit; }
 .pill { padding: 8px 12px; border-radius: 999px; font-weight: 800; background: rgba(255, 255, 255, 0.08); border: 1px solid var(--border); }
 .pill--success { background: rgba(43, 201, 164, 0.15); border-color: rgba(43, 201, 164, 0.4); color: #b7ffe5; }
 .pill--hidden { display: none; }
+.hidden { display: none !important; }
 .icon-btn { background: rgba(255,255,255,0.06); color: var(--text); border: 1px solid var(--border); border-radius: 12px; width: 42px; height: 42px; }
 .cover-frame { border-radius: 18px; overflow: hidden; background: linear-gradient(160deg, rgba(43, 201, 164, 0.16), rgba(0, 0, 0, 0.35)); border: 1px solid var(--border); }
 .cover-frame img { width: 100%; display: block; min-height: 240px; object-fit: cover; }
@@ -247,6 +252,21 @@ a { color: inherit; }
 .wallet { min-height: 140px; border: 1px dashed var(--border); border-radius: 14px; padding: 12px; background: rgba(255,255,255,0.04); }
 
 .gallery-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; margin-top: 10px; }
+
+.card--action {
+  text-decoration: none;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: var(--card);
+  padding: 18px;
+  box-shadow: var(--shadow);
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.card--action:hover {
+  transform: translateY(-4px);
+  border-color: var(--accent);
+}
 .gallery-card { background: rgba(255, 255, 255, 0.06); border-radius: 12px; border: 1px solid var(--border); overflow: hidden; }
 .gallery-card img { width: 100%; height: 120px; object-fit: cover; display: block; }
 .gallery-card__info { padding: 8px; color: var(--muted); font-size: 0.9rem; }

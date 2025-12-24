@@ -1,28 +1,27 @@
 # Psicología Frecuencial
 
-Landing estática con Firebase y cobros por Mercado Pago.
+Sitio estático dividido en páginas para librería, meditaciones, blog y panel de administración. Usa Firebase (Firestore/Storage/Auth) y el Wallet Brick de Mercado Pago.
 
-## Cómo usar
-1. Abre `index.html` desde cualquier hosting estático (GitHub Pages, Firebase Hosting, Vercel, Netlify).
-2. Firebase ya está configurado con la clave que compartiste. La app escribe/lee:
-   - `books`: enlaces de libros (portada, precios, descuento).
-   - `meditations`: audios o videos de frecuencias.
-   - `posts`: artículos del blog (título, categoría, cover, link externo).
-   - `gallery`: imágenes (subidas a Storage o referenciadas por URL).
-3. Para activar los cobros:
-   - Crea una preferencia en tu cuenta de Mercado Pago.
-   - Guarda el `preferenceId` en Firestore en el documento `config/payment` (campo `preferenceId`).
-   - El Wallet Brick usará tu public key `APP_USR-7d17980f-c2ee-47d1-990c-de2e3d4c4fc0`.
+## Páginas
+- `index.html`: portada y acceso rápido al resto de apartados.
+- `libros.html`: vista de tienda para la colección `books` y el wallet de Mercado Pago.
+- `meditaciones.html`: listado de la colección `meditations`.
+- `blog.html`: feed estilo Blogger con la colección `posts`.
+- `admin.html`: panel protegido por Google Sign-In para crear/eliminar libros, meditaciones, posts y subir imágenes a `gallery`.
 
-## Diseño y panel
-- La portada replica la experiencia de la versión desplegada en la nube: hero, cards de recursos y panel inferior para cargar contenido.
-- El héroe y las secciones ya no usan datos estáticos: toman en vivo las colecciones de Firestore.
-- Usa el panel inferior (pestañas Libros, Audios, Blog y Zona test) para publicar libros, meditaciones, entradas del blog e imágenes.
-- Inicia sesión con Google usando la cuenta `moises.beltranx7@gmail.com` para habilitar edición y borrado.
-- Los elementos cargados aparecen al instante en la biblioteca, en el feed del blog y en el héroe destacado.
-- Si las colecciones están vacías, el cliente crea contenido de demo (libro, meditación, posts y una imagen) para que veas el diseño completo sin datos estáticos.
-- El botón **Modo demo** activa un administrador falso y guarda libros, meditaciones, blog e imágenes en `localStorage`, útil cuando Firestore/Google Auth no responde. También carga datos de demo desde la primera vista para que todo se vea poblado.
-- Usa el bloque **Configuración** del panel para pegar tu token de `google-site-verification`; se guarda en `config/site` o en modo demo local si Firebase falla y lo coloca en la meta tag para Search Console sin re-publicar.
+## Datos en Firebase
+- `books`: `{ title, author, cover, url, description, priceMXN, priceUSD, discount }`
+- `meditations`: mismos campos que libros.
+- `posts`: `{ title, category, cover, url, description }`
+- `gallery`: `{ title, url, description }` (el archivo se sube a Storage si lo adjuntas en el panel).
+- `config/payment`: agrega `preferenceId` para que el Wallet Brick se muestre.
 
-## Desarrollo local
-Al ser un sitio estático no necesitas dependencias. Abre `index.html` en el navegador o sirve la carpeta con tu servidor HTTP favorito.
+## Uso rápido
+1. Sirve la carpeta en cualquier hosting estático (GitHub Pages, Vercel, Netlify, Firebase Hosting).
+2. La configuración de Firebase y la public key de Mercado Pago ya están incluidas.
+3. Inicia sesión en `admin.html` con `moises.beltranx7@gmail.com` para poder publicar o borrar elementos.
+4. Todo lo guardado aparece inmediatamente en su página dedicada (libros, meditaciones, blog o galería). Si no hay datos, se muestran ejemplos de demo desde el cliente.
+
+## Notas
+- El héroe de cada página muestra el primer elemento disponible de su colección.
+- Si no existe `preferenceId` en `config/payment`, el estado del wallet mostrará una advertencia hasta que lo agregues en Firestore.

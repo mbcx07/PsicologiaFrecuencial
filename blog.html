@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blog | Psicología Frecuencial</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://sdk.mercadopago.com/js/v2"></script>
+</head>
+<body data-page="blog">
+  <div class="aurora aurora--one"></div>
+  <div class="aurora aurora--two"></div>
+  <div class="grain"></div>
+
+  <header class="nav-shell">
+    <div class="brand">
+      <div class="brand__mark">Ψ</div>
+      <div class="brand__text">
+        <span class="brand__title">Psicología</span>
+        <span class="brand__subtitle">Frecuencial</span>
+      </div>
+    </div>
+    <nav class="nav">
+      <a href="index.html" class="nav__link">Inicio</a>
+      <a href="libros.html" class="nav__link">Libros</a>
+      <a href="meditaciones.html" class="nav__link">Meditaciones</a>
+      <a href="blog.html" class="nav__link nav__link--pill">Blog</a>
+      <a href="admin.html" class="nav__link">ADMIN</a>
+    </nav>
+  </header>
+
+  <main class="hero hero--sub">
+    <div class="hero__copy">
+      <p class="chip chip--outline">Blog</p>
+      <h1>Notas estilo Blogger</h1>
+      <p class="lead">Entradas con portadas, categorías y enlaces externos. Todo sale de Firestore.</p>
+      <div class="cta-row">
+        <a class="btn btn--primary" href="#entradas">Ver entradas</a>
+        <a class="btn btn--ghost" href="admin.html">Panel de administración</a>
+      </div>
+    </div>
+    <div class="hero__card">
+      <div class="card-head">
+        <div id="hero-discount" class="pill pill--success pill--hidden">Nuevo</div>
+        <span class="chip chip--outline" id="hero-category">Entrada</span>
+      </div>
+      <div class="cover-frame">
+        <img id="hero-cover" src="" alt="Portada destacada" class="cover--empty">
+      </div>
+      <div class="card-body">
+        <p class="eyebrow" id="hero-author">—</p>
+        <h3 id="hero-title">Esperando contenido desde Firebase</h3>
+        <p class="muted" id="hero-desc">Sube artículos para mostrarlos aquí.</p>
+      </div>
+    </div>
+  </main>
+
+  <section id="entradas" class="section section--wide">
+    <div class="section__header">
+      <div>
+        <p class="eyebrow">Blog Frecuencial</p>
+        <h2>Explora el conocimiento que transforma tu vibración</h2>
+      </div>
+    </div>
+    <div class="card-row" id="blog-list"></div>
+    <div class="blog-grid" id="blog-stream"></div>
+  </section>
+
+  <footer class="footer">
+    <p class="eyebrow">Psicología Frecuencial</p>
+    <p class="muted">Entradas conectadas a Firestore.</p>
+  </footer>
+
+  <script type="module" src="src/app.js"></script>
+</body>
+</html>
