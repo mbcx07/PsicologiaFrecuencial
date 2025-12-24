@@ -5,11 +5,9 @@ import {
   collection,
   addDoc,
   onSnapshot,
-  serverTimestamp,
-  query,
-  orderBy,
-  getDoc,
   doc,
+  getDoc,
+  serverTimestamp,
 } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
 import {
   getStorage,
@@ -28,187 +26,153 @@ const firebaseConfig = {
   measurementId: "G-7P7GS0Z6ZQ",
 };
 
-const firebaseStatus = document.querySelector("#firebase-status");
-const mpStatus = document.querySelector("#mp-status");
+const app = initializeApp(firebaseConfig);
+getAnalytics(app);
+const db = getFirestore(app);
+const storage = getStorage(app);
 
-let db;
-let storage;
+const mpPublicKey = "APP_USR-7d17980f-c2ee-47d1-990c-de2e3d4c4fc0";
+const mp = new MercadoPago(mpPublicKey, { locale: "es-AR" });
 
-function setStatus(el, text, state = "pending") {
-  el.textContent = text;
-  el.className = `status status--${state}`;
-}
+const firebaseStatus = document.getElementById("firebase-status");
+const mpStatus = document.getElementById("mp-status");
+const highlightTitle = document.getElementById("highlight-title");
+const highlightList = document.getElementById("highlight-list");
 
-function renderList(listEl, items, type) {
-  listEl.innerHTML = "";
+firebaseStatus.textContent = "Firebase listo";
+firebaseStatus.classList.add("status--primary");
 
+const resourceLists = {
+  books: document.getElementById("book-list"),
+  meditations: document.getElementById("meditation-list"),
+  gallery: document.getElementById("gallery-list"),
+};
+
+const forms = {
+  book: document.getElementById("book-form"),
+  meditation: document.getElementById("meditation-form"),
+  gallery: document.getElementById("gallery-form"),
+};
+
+const drawer = document.querySelector("[data-drawer]");
+const openButtons = document.querySelectorAll("[data-open]");
+const closeButton = document.querySelector("[data-close]");
+openButtons.forEach((btn) => btn.addEventListener("click", () => drawer.scrollIntoView({ behavior: "smooth" })));
+closeButton?.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
+
+const renderLinkCard = (data) => {
+  const li = document.createElement("li");
+  li.className = "resource-item";
+  li.innerHTML = `
+    <h4>${data.title ?? "Sin título"}</h4>
+    ${data.description ? `<p>${data.description}</p>` : ""}
+    ${data.url ? `<a href="${data.url}" target="_blank" rel="noopener">Abrir</a>` : ""}
+  `;
+  return li;
+};
+
+const renderGalleryCard = (data) => {
+  const card = document.createElement("div");
+  card.className = "gallery-card";
+  if (data.url) {
+    const img = document.createElement("img");
+    img.src = data.url;
+    img.alt = data.title ?? "Imagen";
+    card.appendChild(img);
+  }
+  const info = document.createElement("div");
+  info.className = "gallery-card__info";
+  info.innerHTML = `<strong>${data.title ?? "Imagen"}</strong><br>${data.description ?? ""}`;
+  card.appendChild(info);
+  return card;
+};
+
+const updateHighlights = (items) => {
+  highlightList.innerHTML = "";
   if (!items.length) {
-    listEl.innerHTML = `<li class="list__item">Aún no hay ${type}. Agrega el primero.</li>`;
+    highlightList.innerHTML = '<li class="mini-item">Carga tus recursos en el panel y se mostrarán aquí automáticamente.</li>';
     return;
   }
-
-  items.forEach((item) => {
+  const sorted = [...items].sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0)).slice(0, 4);
+  highlightTitle.textContent = "Selección recién cargada";
+  sorted.forEach((item) => {
     const li = document.createElement("li");
-    li.className = "list__item";
-
-    const title = document.createElement("h3");
-    title.textContent = item.title;
-
-    const desc = document.createElement("p");
-    desc.textContent = item.description || "Sin descripción";
-
-    if (item.url) {
-      const link = document.createElement("a");
-      link.href = item.url;
-      link.target = "_blank";
-      link.rel = "noreferrer";
-      link.textContent = item.url;
-      li.append(title, desc, link);
-    } else {
-      li.append(title, desc);
-    }
-
-    if (item.imageUrl) {
-      const img = document.createElement("img");
-      img.src = item.imageUrl;
-      img.alt = item.title;
-      img.loading = "lazy";
-      img.style.maxWidth = "100%";
-      img.style.borderRadius = "10px";
-      img.style.marginTop = "8px";
-      li.appendChild(img);
-    }
-
-    listEl.appendChild(li);
+    li.className = "mini-item";
+    li.textContent = `${item.title ?? "Recurso"} · ${item.category}`;
+    highlightList.appendChild(li);
   });
-}
+};
 
-async function handleFormSubmission(formEl, collectionName, extraHandler) {
-  formEl.addEventListener("submit", async (event) => {
-    event.preventDefault();
-    const formData = new FormData(formEl);
+const listenCollection = (name, renderer) => {
+  const col = collection(db, name);
+  const items = [];
+  onSnapshot(col, (snapshot) => {
+    const listEl = resourceLists[name];
+    listEl.innerHTML = "";
+    items.length = 0;
+    snapshot.forEach((docSnap) => {
+      const data = docSnap.data();
+      items.push({ ...data, id: docSnap.id, category: name });
+      listEl.appendChild(renderer(data));
+    });
+    updateHighlights(items);
+  });
+};
 
+listenCollection("books", renderLinkCard);
+listenCollection("meditations", renderLinkCard);
+listenCollection("gallery", renderGalleryCard);
+
+const uploadFileIfNeeded = async (file) => {
+  if (!file) return null;
+  const storageRef = ref(storage, `gallery/${Date.now()}-${file.name}`);
+  const snap = await uploadBytes(storageRef, file);
+  return getDownloadURL(snap.ref);
+};
+
+const handleSubmit = (collectionName, form, needsUpload) => {
+  form?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const formData = new FormData(form);
     const payload = {
       title: formData.get("title"),
-      url: formData.get("url"),
-      description: formData.get("description"),
+      url: formData.get("url") || null,
+      description: formData.get("description") || null,
       createdAt: serverTimestamp(),
     };
 
-    try {
-      const enriched = extraHandler ? await extraHandler(payload, formData) : payload;
-      await addDoc(collection(db, collectionName), enriched);
-      formEl.reset();
-    } catch (error) {
-      alert(`No se pudo guardar: ${error.message}`);
+    if (needsUpload) {
+      const file = form.elements.namedItem("file").files[0];
+      const uploadedUrl = await uploadFileIfNeeded(file);
+      if (uploadedUrl) payload.url = uploadedUrl;
     }
+
+    await addDoc(collection(db, collectionName), payload);
+    form.reset();
   });
-}
+};
 
-async function setupRealtimeLists() {
-  const bookList = document.querySelector("#book-list");
-  const meditationList = document.querySelector("#meditation-list");
-  const galleryList = document.querySelector("#gallery-list");
+handleSubmit("books", forms.book, false);
+handleSubmit("meditations", forms.meditation, false);
+handleSubmit("gallery", forms.gallery, true);
 
-  onSnapshot(query(collection(db, "books"), orderBy("createdAt", "desc")), (snap) => {
-    const items = snap.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-    renderList(bookList, items, "libros");
-  });
-
-  onSnapshot(query(collection(db, "meditations"), orderBy("createdAt", "desc")), (snap) => {
-    const items = snap.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-    renderList(meditationList, items, "meditaciones");
-  });
-
-  onSnapshot(query(collection(db, "gallery"), orderBy("createdAt", "desc")), (snap) => {
-    const items = snap.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-    renderList(galleryList, items, "imágenes");
-  });
-}
-
-async function uploadFileIfNeeded(payload, formData) {
-  const file = formData.get("file");
-  const url = payload.url?.trim();
-
-  if (file && file.size > 0) {
-    const imageRef = ref(
-      storage,
-      `gallery/${Date.now()}-${file.name.replace(/\s+/g, "-")}`
-    );
-    await uploadBytes(imageRef, file);
-    const downloadUrl = await getDownloadURL(imageRef);
-    return { ...payload, imageUrl: downloadUrl, url: url || downloadUrl };
-  }
-
-  if (url) {
-    return { ...payload, imageUrl: url };
-  }
-
-  throw new Error("Sube una imagen o proporciona una URL");
-}
-
-async function initMercadoPago() {
+const bootstrapPayment = async () => {
   try {
-    const mp = new window.MercadoPago(
-      "APP_USR-7d17980f-c2ee-47d1-990c-de2e3d4c4fc0",
-      { locale: "es-AR" }
-    );
-
-    const paymentDoc = await getDoc(doc(db, "config", "payment"));
-    const preferenceId = paymentDoc.exists() ? paymentDoc.data().preferenceId : null;
-
-    if (!preferenceId) {
-      setStatus(mpStatus, "Configura un preferenceId en Firestore (config/payment)", "pending");
+    const docSnap = await getDoc(doc(db, "config", "payment"));
+    const prefId = docSnap.data()?.preferenceId;
+    if (!prefId) {
+      mpStatus.textContent = "Agrega un preferenceId en config/payment";
       return;
     }
-
+    mpStatus.textContent = "Preferencia encontrada, cargando Wallet";
     const bricksBuilder = mp.bricks();
     await bricksBuilder.create("wallet", "wallet_container", {
-      initialization: {
-        preferenceId,
-      },
-      callbacks: {
-        onError: (error) => {
-          console.error("Mercado Pago error", error);
-          setStatus(mpStatus, `Error en wallet: ${error?.message ?? error}`, "error");
-        },
-        onReady: () => setStatus(mpStatus, "Wallet lista con preferencia activa", "ok"),
-      },
+      initialization: { preferenceId: prefId },
     });
-  } catch (error) {
-    console.error(error);
-    setStatus(mpStatus, `No se pudo cargar Mercado Pago: ${error.message}`, "error");
+  } catch (err) {
+    console.error(err);
+    mpStatus.textContent = "Error cargando pago: " + err.message;
   }
-}
+};
 
-function initFirebase() {
-  try {
-    const app = initializeApp(firebaseConfig);
-    getAnalytics(app);
-    db = getFirestore(app);
-    storage = getStorage(app);
-    setStatus(firebaseStatus, "Firebase inicializado", "ok");
-    return true;
-  } catch (error) {
-    console.error(error);
-    setStatus(firebaseStatus, `No se pudo iniciar Firebase: ${error.message}`, "error");
-    return false;
-  }
-}
-
-function main() {
-  if (!initFirebase()) return;
-
-  handleFormSubmission(document.querySelector("#book-form"), "books");
-  handleFormSubmission(document.querySelector("#meditation-form"), "meditations");
-  handleFormSubmission(
-    document.querySelector("#gallery-form"),
-    "gallery",
-    uploadFileIfNeeded
-  );
-
-  setupRealtimeLists();
-  initMercadoPago();
-}
-
-main();
+bootstrapPayment();
