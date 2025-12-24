@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Psicología Frecuencial</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://sdk.mercadopago.com/js/v2"></script>
+</head>
+<body>
+  <header class="hero">
+    <div class="hero__content">
+      <p class="hero__eyebrow">Psicología Frecuencial</p>
+      <h1>Recursos, meditaciones y monetización en un solo lugar</h1>
+      <p class="hero__subtitle">
+        Administra tus enlaces de libros, meditaciones y galerías desde Firebase y cobra de forma segura con Mercado Pago.
+      </p>
+      <div class="hero__actions">
+        <a class="button" href="#resources">Ver recursos</a>
+        <a class="button button--ghost" href="#payment">Cobrar con Mercado Pago</a>
+      </div>
+    </div>
+    <div class="hero__badge">APP_USR-7d17980f-c2ee-47d1-990c-de2e3d4c4fc0</div>
+  </header>
+
+  <main class="layout">
+    <section id="status" class="card">
+      <h2>Estado de la conexión</h2>
+      <p id="firebase-status" class="status status--pending">Inicializando Firebase...</p>
+      <p id="mp-status" class="status status--pending">Esperando preferencia de pago...</p>
+    </section>
+
+    <section id="payment" class="card">
+      <div class="card__header">
+        <div>
+          <p class="eyebrow">Monetización</p>
+          <h2>Cobros con Mercado Pago</h2>
+          <p>Se usa el public key proporcionado para inicializar el Wallet Brick. Configura el <code>preferenceId</code> en Firestore en <code>config/payment</code>.</p>
+        </div>
+      </div>
+      <div id="wallet_container" class="wallet"></div>
+      <div class="hint">
+        <p>Si no ves el botón, crea una preferencia en tu cuenta de Mercado Pago y guarda su <code>id</code> en el documento <strong>config/payment</strong> (campo <code>preferenceId</code>) de Firestore.</p>
+      </div>
+    </section>
+
+    <section id="resources" class="grid">
+      <article class="card">
+        <div class="card__header">
+          <div>
+            <p class="eyebrow">Libros</p>
+            <h2>Enlaces de libros</h2>
+          </div>
+        </div>
+        <form id="book-form" class="form">
+          <label>Nombre
+            <input name="title" placeholder="Título del libro" required>
+          </label>
+          <label>URL
+            <input name="url" type="url" placeholder="https://" required>
+          </label>
+          <label>Descripción
+            <textarea name="description" rows="2" placeholder="Notas breves"></textarea>
+          </label>
+          <button type="submit" class="button">Guardar libro</button>
+        </form>
+        <ul id="book-list" class="list"></ul>
+      </article>
+
+      <article class="card">
+        <div class="card__header">
+          <div>
+            <p class="eyebrow">Meditaciones</p>
+            <h2>Audios y videos</h2>
+          </div>
+        </div>
+        <form id="meditation-form" class="form">
+          <label>Nombre
+            <input name="title" placeholder="Meditación guiada" required>
+          </label>
+          <label>URL
+            <input name="url" type="url" placeholder="https://" required>
+          </label>
+          <label>Descripción
+            <textarea name="description" rows="2" placeholder="Notas breves"></textarea>
+          </label>
+          <button type="submit" class="button">Guardar meditación</button>
+        </form>
+        <ul id="meditation-list" class="list"></ul>
+      </article>
+
+      <article class="card">
+        <div class="card__header">
+          <div>
+            <p class="eyebrow">Galería</p>
+            <h2>Imágenes destacadas</h2>
+          </div>
+        </div>
+        <form id="gallery-form" class="form" enctype="multipart/form-data">
+          <label>Nombre
+            <input name="title" placeholder="Imagen" required>
+          </label>
+          <label>Archivo
+            <input name="file" type="file" accept="image/*">
+          </label>
+          <label>URL (opcional si subes archivo)
+            <input name="url" type="url" placeholder="https://">
+          </label>
+          <label>Descripción
+            <textarea name="description" rows="2" placeholder="Notas breves"></textarea>
+          </label>
+          <button type="submit" class="button">Guardar imagen</button>
+        </form>
+        <ul id="gallery-list" class="list list--grid"></ul>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>Hecho para Psicología Frecuencial · Datos en Firebase · Cobros con Mercado Pago</p>
+  </footer>
+
+  <script type="module" src="src/app.js"></script>
+</body>
+</html>
