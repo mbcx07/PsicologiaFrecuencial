@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Libros | Psicología Frecuencial</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://sdk.mercadopago.com/js/v2"></script>
+</head>
+<body data-page="books">
+  <div class="aurora aurora--one"></div>
+  <div class="aurora aurora--two"></div>
+  <div class="grain"></div>
+
+  <header class="nav-shell">
+    <div class="brand">
+      <div class="brand__mark">Ψ</div>
+      <div class="brand__text">
+        <span class="brand__title">Psicología</span>
+        <span class="brand__subtitle">Frecuencial</span>
+      </div>
+    </div>
+    <nav class="nav">
+      <a href="index.html" class="nav__link">Inicio</a>
+      <a href="libros.html" class="nav__link nav__link--pill">Libros</a>
+      <a href="meditaciones.html" class="nav__link">Meditaciones</a>
+      <a href="blog.html" class="nav__link">Blog</a>
+      <a href="admin.html" class="nav__link">ADMIN</a>
+    </nav>
+  </header>
+
+  <main class="hero hero--sub">
+    <div class="hero__copy">
+      <p class="chip chip--outline">Librería</p>
+      <h1>Libros y cuadernos frecuenciales</h1>
+      <p class="lead">Todos los títulos se cargan desde Firebase y muestran precios y descuentos reales.</p>
+      <div class="cta-row">
+        <a class="btn btn--primary" href="#tienda">Abrir tienda</a>
+        <a class="btn btn--ghost" href="admin.html">Panel de administración</a>
+      </div>
+    </div>
+    <div class="hero__card">
+      <div class="card-head">
+        <div id="hero-discount" class="pill pill--success pill--hidden">Oferta</div>
+        <span class="chip chip--outline" id="hero-category">Libro</span>
+      </div>
+      <div class="cover-frame">
+        <img id="hero-cover" src="" alt="Portada destacada" class="cover--empty">
+      </div>
+      <div class="card-body">
+        <p class="eyebrow" id="hero-author">—</p>
+        <h3 id="hero-title">Esperando contenido desde Firebase</h3>
+        <p class="muted" id="hero-desc">Sube libros para mostrarlos aquí.</p>
+        <div class="price-row" id="hero-prices">
+          <div class="price" id="hero-price-mxn"></div>
+          <div class="price price--muted" id="hero-price-usd"></div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <section id="tienda" class="section section--split">
+    <div>
+      <p class="eyebrow">Librería Frecuencial</p>
+      <h2>Explora la biblioteca</h2>
+      <p class="muted">Lo que guardes como libros en Firestore se mostrará en tiempo real con portada, autor, precio y descuento.</p>
+    </div>
+    <div class="card-carousel" id="book-cards"></div>
+  </section>
+
+  <section class="section section--columns">
+    <div class="panel">
+      <div class="panel__head">
+        <div>
+          <p class="eyebrow">Mercado Pago</p>
+          <h3>Cobros directos</h3>
+          <p class="muted">Coloca el <code>preferenceId</code> en Firestore (config/payment) para mostrar el wallet.</p>
+        </div>
+        <span class="chip chip--outline" id="mp-status">Esperando preferencia...</span>
+      </div>
+      <div class="wallet" id="wallet_container"></div>
+    </div>
+    <div class="panel panel--ghost">
+      <div class="panel__head">
+        <div>
+          <p class="eyebrow">Firebase</p>
+          <h3>Estado de conexión</h3>
+          <p class="muted">Firestore: books. Storage: gallery/.</p>
+        </div>
+        <span class="chip chip--success" id="firebase-status">Listo</span>
+      </div>
+      <div class="gallery-grid" id="gallery-list"></div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <p class="eyebrow">Psicología Frecuencial</p>
+    <p class="muted">Libros conectados a Firestore · Cobros con Mercado Pago.</p>
+  </footer>
+
+  <script type="module" src="src/app.js"></script>
+</body>
+</html>

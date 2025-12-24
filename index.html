@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="google-site-verification" content="">
+  <title>Psicología Frecuencial</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://sdk.mercadopago.com/js/v2"></script>
+</head>
+<body data-page="home">
+  <div class="aurora aurora--one"></div>
+  <div class="aurora aurora--two"></div>
+  <div class="grain"></div>
+
+  <header class="nav-shell">
+    <div class="brand">
+      <div class="brand__mark">Ψ</div>
+      <div class="brand__text">
+        <span class="brand__title">Psicología</span>
+        <span class="brand__subtitle">Frecuencial</span>
+      </div>
+    </div>
+    <nav class="nav">
+      <a href="index.html" class="nav__link">Inicio</a>
+      <a href="libros.html" class="nav__link">Libros</a>
+      <a href="meditaciones.html" class="nav__link">Meditaciones</a>
+      <a href="blog.html" class="nav__link">Blog</a>
+      <a href="admin.html" class="nav__link nav__link--pill">ADMIN</a>
+    </nav>
+  </header>
+
+  <main class="hero">
+    <div class="hero__copy">
+      <p class="chip chip--outline">Último lanzamiento</p>
+      <h1>Psicología Frecuencial <span>en vivo</span></h1>
+      <p class="lead">Descubre libros, audios y artículos que elevan tu vibración. Todo conectado a Firebase con cobros por Mercado Pago.</p>
+      <div class="cta-row">
+        <a class="btn btn--primary" href="libros.html">Ver librería</a>
+        <a class="btn btn--ghost" href="meditaciones.html">Explorar audios</a>
+        <a class="btn btn--ghost" href="blog.html">Entrar al blog</a>
+      </div>
+      <div class="tag-row">
+        <span class="tag tag--soft">Firebase Firestore + Storage</span>
+        <span class="tag">Mercado Pago</span>
+      </div>
+    </div>
+    <div class="hero__card" id="hero-card">
+      <div class="card-head">
+        <div id="hero-discount" class="pill pill--success pill--hidden">Oferta</div>
+        <span class="chip chip--outline" id="hero-category">En vivo</span>
+      </div>
+      <div class="cover-frame">
+        <img id="hero-cover" src="" alt="Portada destacada" class="cover--empty">
+      </div>
+      <div class="card-body">
+        <p class="eyebrow" id="hero-author">—</p>
+        <h3 id="hero-title">Esperando contenido desde Firebase</h3>
+        <p class="muted" id="hero-desc">Carga libros o meditaciones en Firestore para mostrarlos aquí.</p>
+        <div class="price-row" id="hero-prices">
+          <div class="price" id="hero-price-mxn"></div>
+          <div class="price price--muted" id="hero-price-usd"></div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <section class="section section--wide">
+    <div class="section__header">
+      <div>
+        <p class="eyebrow">Explora</p>
+        <h2>Todo en un solo ecosistema</h2>
+        <p class="muted">Cada apartado tiene su propia página para que puedas enfocarte en libros, meditaciones o artículos.</p>
+      </div>
+    </div>
+    <div class="card-row">
+      <a class="card card--action" href="libros.html">
+        <div class="card-body">
+          <p class="eyebrow">Librería</p>
+          <h3>Libros y PDFs</h3>
+          <p class="muted">Portadas, precios, descuentos y enlaces listos para descargar.</p>
+          <span class="chip chip--primary">Ir a libros</span>
+        </div>
+      </a>
+      <a class="card card--action" href="meditaciones.html">
+        <div class="card-body">
+          <p class="eyebrow">Meditaciones</p>
+          <h3>Audios y videos</h3>
+          <p class="muted">Frecuencias y meditaciones guiadas conectadas a Firestore.</p>
+          <span class="chip chip--primary">Ir a audios</span>
+        </div>
+      </a>
+      <a class="card card--action" href="blog.html">
+        <div class="card-body">
+          <p class="eyebrow">Blog</p>
+          <h3>Artículos</h3>
+          <p class="muted">Entradas estilo Blogger con enlaces externos y portadas.</p>
+          <span class="chip chip--primary">Ir al blog</span>
+        </div>
+      </a>
+    </div>
+  </section>
+
+  <section class="section section--columns">
+    <div class="panel panel--ghost">
+      <div class="panel__head">
+        <div>
+          <p class="eyebrow">Galería</p>
+          <h3>Imágenes</h3>
+          <p class="muted">Carga imágenes desde el panel de administración y míralas aquí.</p>
+        </div>
+      </div>
+      <div class="gallery-grid" id="gallery-list"></div>
+    </div>
+    <div class="panel">
+      <div class="panel__head">
+        <div>
+          <p class="eyebrow">Estado</p>
+          <h3>Firebase</h3>
+          <p class="muted">Firestore y Storage en tiempo real.</p>
+        </div>
+        <span class="chip chip--success" id="firebase-status">Listo</span>
+      </div>
+      <div class="status" id="mp-status">Mercado Pago espera preferenceId</div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <p class="eyebrow">Psicología Frecuencial</p>
+    <p class="muted">Sintonizando tu mente con el universo · Datos en Firebase · Cobros con Mercado Pago.</p>
+  </footer>
+
+  <script type="module" src="src/app.js"></script>
+</body>
+</html>
