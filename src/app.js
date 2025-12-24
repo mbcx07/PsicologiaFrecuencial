@@ -36,39 +36,57 @@ const mp = new MercadoPago(mpPublicKey, { locale: "es-AR" });
 
 const firebaseStatus = document.getElementById("firebase-status");
 const mpStatus = document.getElementById("mp-status");
-const highlightTitle = document.getElementById("highlight-title");
-const highlightList = document.getElementById("highlight-list");
+const galleryList = document.getElementById("gallery-list");
+const heroCover = document.getElementById("hero-cover");
+const heroAuthor = document.getElementById("hero-author");
+const heroTitle = document.getElementById("hero-title");
+const heroDesc = document.getElementById("hero-desc");
+const highlightPill = document.getElementById("highlight-pill");
+const heroCard = document.getElementById("hero-card");
 
 firebaseStatus.textContent = "Firebase listo";
-firebaseStatus.classList.add("status--primary");
+firebaseStatus.classList.add("chip--success");
 
-const resourceLists = {
-  books: document.getElementById("book-list"),
-  meditations: document.getElementById("meditation-list"),
-  gallery: document.getElementById("gallery-list"),
+const safeNumber = (value) => {
+  const num = Number(value);
+  return Number.isFinite(num) ? num : null;
 };
 
-const forms = {
-  book: document.getElementById("book-form"),
-  meditation: document.getElementById("meditation-form"),
-  gallery: document.getElementById("gallery-form"),
-};
-
-const drawer = document.querySelector("[data-drawer]");
-const openButtons = document.querySelectorAll("[data-open]");
-const closeButton = document.querySelector("[data-close]");
-openButtons.forEach((btn) => btn.addEventListener("click", () => drawer.scrollIntoView({ behavior: "smooth" })));
-closeButton?.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
-
-const renderLinkCard = (data) => {
-  const li = document.createElement("li");
-  li.className = "resource-item";
-  li.innerHTML = `
+const renderBlogCard = (data) => {
+  const card = document.createElement("article");
+  card.className = "blog-card";
+  card.innerHTML = `
+    <div class="meta">${data.author || "Moïses Beltrán Castro"} · ${data.category}</div>
     <h4>${data.title ?? "Sin título"}</h4>
-    ${data.description ? `<p>${data.description}</p>` : ""}
-    ${data.url ? `<a href="${data.url}" target="_blank" rel="noopener">Abrir</a>` : ""}
+    <p class="muted">${data.description ?? "Contenido pendiente"}</p>
+    ${data.url ? `<a class="link" href="${data.url}" target="_blank" rel="noopener">Leer ahora</a>` : ""}
   `;
-  return li;
+  return card;
+};
+
+const renderResourceCard = (data) => {
+  const card = document.createElement("article");
+  card.className = "resource-card";
+  const discount = safeNumber(data.discount);
+  const priceMXN = data.priceMXN ?? data.price ?? null;
+  const priceUSD = data.priceUSD ?? null;
+  const cover = data.cover || data.url;
+  card.innerHTML = `
+    ${discount ? `<span class="badge badge--discount">-${discount}%</span>` : ""}
+    ${cover ? `<img src="${cover}" alt="${data.title ?? "Portada"}">` : ""}
+    <div class="author">${data.author || "Moïses Beltrán Castro"}</div>
+    <h3>${data.title ?? "Recurso"}</h3>
+    <p class="desc">${data.description ?? "Descripción pendiente"}</p>
+    <div class="pricing">
+      ${priceMXN ? `<span class="primary">$${priceMXN} MXN</span>` : ""}
+      ${priceUSD ? `<span class="secondary">$${priceUSD} USD</span>` : ""}
+    </div>
+    <div class="actions">
+      <span class="pill pill--success">${data.category === "meditations" ? "Adquirir sintonía" : "Leer ahora"}</span>
+      ${data.url ? `<a href="${data.url}" target="_blank" rel="noopener">Abrir</a>` : ""}
+    </div>
+  `;
+  return card;
 };
 
 const renderGalleryCard = (data) => {
@@ -87,41 +105,72 @@ const renderGalleryCard = (data) => {
   return card;
 };
 
-const updateHighlights = (items) => {
-  highlightList.innerHTML = "";
+const sections = {
+  books: document.getElementById("book-cards"),
+  meditations: document.getElementById("meditation-cards"),
+};
+
+const blogList = document.getElementById("blog-list");
+
+const updateHero = (items) => {
   if (!items.length) {
-    highlightList.innerHTML = '<li class="mini-item">Carga tus recursos en el panel y se mostrarán aquí automáticamente.</li>';
+    highlightPill.textContent = "Carga tus recursos en Firestore";
     return;
   }
-  const sorted = [...items].sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0)).slice(0, 4);
-  highlightTitle.textContent = "Selección recién cargada";
-  sorted.forEach((item) => {
-    const li = document.createElement("li");
-    li.className = "mini-item";
-    li.textContent = `${item.title ?? "Recurso"} · ${item.category}`;
-    highlightList.appendChild(li);
-  });
+  const latest = [...items].sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0))[0];
+  highlightPill.textContent = latest.title ?? "Nuevo recurso";
+  heroTitle.textContent = latest.title ?? "Recurso";
+  heroDesc.textContent = latest.description ?? "";
+  heroAuthor.textContent = latest.author || "Moïses Beltrán Castro";
+  if (latest.cover || latest.url) {
+    heroCover.src = latest.cover || latest.url;
+  }
 };
 
-const listenCollection = (name, renderer) => {
-  const col = collection(db, name);
-  const items = [];
-  onSnapshot(col, (snapshot) => {
-    const listEl = resourceLists[name];
-    listEl.innerHTML = "";
-    items.length = 0;
-    snapshot.forEach((docSnap) => {
-      const data = docSnap.data();
-      items.push({ ...data, id: docSnap.id, category: name });
-      listEl.appendChild(renderer(data));
+const renderCollections = () => {
+  const state = { books: [], meditations: [] };
+
+  const rebuildBlogAndHero = () => {
+    const combined = [...state.books, ...state.meditations].sort(
+      (a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0)
+    );
+    blogList.innerHTML = "";
+    if (!combined.length) {
+      blogList.innerHTML = '<article class="blog-card ghost">Carga posts en Firestore para verlos aquí.</article>';
+    } else {
+      combined.forEach((item) => blogList.appendChild(renderBlogCard(item)));
+    }
+    updateHero(combined);
+  };
+
+  const listen = (name) => {
+    onSnapshot(collection(db, name), (snapshot) => {
+      if (name === "gallery") {
+        galleryList.innerHTML = "";
+        snapshot.forEach((docSnap) => {
+          galleryList.appendChild(renderGalleryCard(docSnap.data()));
+        });
+        return;
+      }
+
+      const container = name === "books" ? sections.books : sections.meditations;
+      container.innerHTML = "";
+      state[name] = [];
+
+      snapshot.forEach((docSnap) => {
+        const data = { ...docSnap.data(), id: docSnap.id, category: name };
+        state[name].push(data);
+        container.appendChild(renderResourceCard(data));
+      });
+
+      rebuildBlogAndHero();
     });
-    updateHighlights(items);
-  });
-};
+  };
 
-listenCollection("books", renderLinkCard);
-listenCollection("meditations", renderLinkCard);
-listenCollection("gallery", renderGalleryCard);
+  listen("books");
+  listen("meditations");
+  listen("gallery");
+};
 
 const uploadFileIfNeeded = async (file) => {
   if (!file) return null;
@@ -137,6 +186,11 @@ const handleSubmit = (collectionName, form, needsUpload) => {
     const payload = {
       title: formData.get("title"),
       url: formData.get("url") || null,
+      cover: formData.get("cover") || null,
+      author: formData.get("author") || null,
+      priceMXN: safeNumber(formData.get("priceMXN")),
+      priceUSD: safeNumber(formData.get("priceUSD")),
+      discount: safeNumber(formData.get("discount")),
       description: formData.get("description") || null,
       createdAt: serverTimestamp(),
     };
@@ -152,9 +206,11 @@ const handleSubmit = (collectionName, form, needsUpload) => {
   });
 };
 
-handleSubmit("books", forms.book, false);
-handleSubmit("meditations", forms.meditation, false);
-handleSubmit("gallery", forms.gallery, true);
+handleSubmit("books", document.getElementById("book-form"), false);
+handleSubmit("meditations", document.getElementById("meditation-form"), false);
+handleSubmit("gallery", document.getElementById("gallery-form"), true);
+
+renderCollections();
 
 const bootstrapPayment = async () => {
   try {

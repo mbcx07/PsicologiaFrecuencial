@@ -6,180 +6,196 @@
   <title>Psicología Frecuencial</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
   <script src="https://sdk.mercadopago.com/js/v2"></script>
 </head>
 <body>
-  <div class="bg-shape bg-shape--one"></div>
-  <div class="bg-shape bg-shape--two"></div>
+  <div class="aurora aurora--one"></div>
+  <div class="aurora aurora--two"></div>
+  <div class="grain"></div>
 
-  <header class="topbar">
-    <div class="logo">Psicología Frecuencial</div>
+  <header class="nav-shell">
+    <div class="brand">
+      <div class="brand__mark">Ψ</div>
+      <div class="brand__text">
+        <span class="brand__title">Psicología</span>
+        <span class="brand__subtitle">Frecuencial</span>
+      </div>
+    </div>
     <nav class="nav">
-      <a href="#inicio">Inicio</a>
-      <a href="#recursos">Recursos</a>
-      <a href="#pago">Cobros</a>
-      <a href="#panel">Panel</a>
+      <a href="#inicio" class="nav__link">Inicio</a>
+      <a href="#libros" class="nav__link">Libros</a>
+      <a href="#meditaciones" class="nav__link">Meditaciones</a>
+      <a href="#blog" class="nav__link">Blog</a>
+      <a href="#biblioteca" class="nav__link">Biblioteca</a>
+      <a href="#panel" class="nav__link nav__link--pill">ADMIN</a>
     </nav>
   </header>
 
   <main id="inicio" class="hero">
-    <div class="hero__text">
-      <p class="pill">Frecuencias · Sanación · Guía</p>
-      <h1>Eleva tu práctica con recursos guiados y cobros en un solo lugar.</h1>
-      <p class="lead">Gestiona libros, meditaciones y tu galería desde Firebase. Cobra con Mercado Pago usando tu public key y muestra todo en una vitrina estática lista para publicar.</p>
-      <div class="hero__actions">
-        <a class="button" href="#recursos">Ver biblioteca</a>
-        <a class="button button--ghost" href="#pago">Configurar cobros</a>
+    <div class="hero__copy">
+      <p class="chip chip--outline">Última sintonía: <span id="highlight-pill">Cargando…</span></p>
+      <h1>BIENVENIDO A LA ERA DE LA <span>PSICOLOGÍA FRECUENCIAL</span></h1>
+      <p class="lead">Transforma tu realidad a través del conocimiento y la sintonización consciente de tu campo mental.</p>
+      <div class="cta-row">
+        <a class="btn btn--primary" href="#libros">Comprar libros</a>
+        <a class="btn btn--ghost" href="#meditaciones">Meditaciones</a>
+        <a class="btn btn--ghost" href="#blog">Blog</a>
       </div>
-      <div class="badges">
-        <span class="badge">Mercado Pago · APP_USR-7d17980f-c2ee-47d1-990c-de2e3d4c4fc0</span>
-        <span class="badge badge--soft">Firebase Firestore + Storage</span>
+      <div class="tag-row">
+        <span class="tag">APP_USR-7d17980f-c2ee-47d1-990c-de2e3d4c4fc0</span>
+        <span class="tag tag--soft">Firebase Firestore + Storage</span>
       </div>
     </div>
-    <div class="hero__card">
-      <div class="hero__card-header">
-        <p class="eyebrow">Colección destacada</p>
-        <h3 id="highlight-title">Libros y meditaciones curadas</h3>
+    <div class="hero__card" id="hero-card">
+      <div class="card-head">
+        <div class="pill pill--success">Oferta · -70%</div>
+        <button class="icon-btn" aria-label="carrito">🛒</button>
       </div>
-      <ul id="highlight-list" class="mini-list">
-        <li class="mini-item">Carga tus recursos en el panel y se mostrarán aquí automáticamente.</li>
-      </ul>
-      <div class="card__footer">
-        <p class="hint">El diseño refleja la versión en la nube: se ve igual al desplegarlo estáticamente.</p>
+      <div class="cover-frame">
+        <img id="hero-cover" src="https://images.unsplash.com/photo-1471109880861-75cec67f8b68?auto=format&fit=crop&w=800&q=80" alt="Portada destacada">
+      </div>
+      <div class="card-body">
+        <p class="eyebrow" id="hero-author">Moïses Beltrán Castro</p>
+        <h3 id="hero-title">Crianza consciente: el poder del apego para criar hijos seguros y felices</h3>
+        <p class="muted" id="hero-desc">Libro guía para construir presencia consciente y sanar memorias emocionales.</p>
+        <div class="price-row">
+          <div class="price">$299 <span>MXN</span></div>
+          <div class="price price--muted">$15 <span>USD</span></div>
+        </div>
       </div>
     </div>
   </main>
 
-  <section id="recursos" class="section">
+  <section id="blog" class="section section--wide">
     <div class="section__header">
       <div>
-        <p class="eyebrow">Recursos frecuenciales</p>
-        <h2>Biblioteca viva conectada a Firebase</h2>
-        <p class="muted">Todo lo que guardes en Firestore aparecerá en vivo: libros, meditaciones y galería con imágenes de Storage.</p>
+        <p class="eyebrow">Blog Frecuencial</p>
+        <h2>Explora el conocimiento que transforma tu vibración</h2>
       </div>
-      <div class="section__actions">
-        <button class="chip" data-open="panel">Abrir panel de carga</button>
-      </div>
+      <a class="chip" href="#biblioteca">Ver todo el blog</a>
     </div>
-
-    <div class="cards-grid">
-      <article class="card">
-        <div class="card__header">
-          <div>
-            <p class="eyebrow">Libros</p>
-            <h3>Enlaces de lectura</h3>
-          </div>
-        </div>
-        <ul id="book-list" class="resource-list"></ul>
-      </article>
-
-      <article class="card">
-        <div class="card__header">
-          <div>
-            <p class="eyebrow">Meditaciones</p>
-            <h3>Audios y videos</h3>
-          </div>
-        </div>
-        <ul id="meditation-list" class="resource-list"></ul>
-      </article>
-
-      <article class="card">
-        <div class="card__header">
-          <div>
-            <p class="eyebrow">Galería</p>
-            <h3>Imágenes y portadas</h3>
-          </div>
-        </div>
-        <div class="gallery-grid" id="gallery-list"></div>
-      </article>
+    <div class="card-row" id="blog-list">
+      <article class="blog-card ghost">Carga tus posts en Firestore (colección <strong>books</strong> o <strong>meditations</strong>) y aparecerán aquí.</article>
     </div>
   </section>
 
-  <section id="pago" class="section section--split">
+  <section id="libros" class="section section--split">
+    <div>
+      <p class="eyebrow">Librería Frecuencial</p>
+      <h2>Explora la biblioteca</h2>
+      <p class="muted">Lo que guardes como libros en Firestore se mostrará en tiempo real con portada, autor, precio y descuento.</p>
+    </div>
+    <div class="card-carousel" id="book-cards"></div>
+  </section>
+
+  <section id="meditaciones" class="section section--split">
+    <div>
+      <p class="eyebrow">Audios de sanación</p>
+      <h2>Frecuencias puras</h2>
+      <p class="muted">Meditaciones guiadas y frecuencias que subas aparecerán con sus valores y descripción.</p>
+    </div>
+    <div class="card-carousel" id="meditation-cards"></div>
+  </section>
+
+  <section id="biblioteca" class="section section--columns">
     <div class="panel">
-      <p class="eyebrow">Mercado Pago</p>
-      <h2>Cobros directos desde tu landing</h2>
-      <p class="muted">Se inicializa el Wallet Brick con tu public key. Solo debes guardar el <code>preferenceId</code> en Firestore en <strong>config/payment</strong> para que aparezca el botón de pago.</p>
-      <div class="status" id="mp-status">Esperando preferencia de pago...</div>
+      <div class="panel__head">
+        <div>
+          <p class="eyebrow">Mercado Pago</p>
+          <h3>Cobros directos</h3>
+          <p class="muted">Configura el <code>preferenceId</code> en Firestore (config/payment) para mostrar el wallet.</p>
+        </div>
+        <span class="chip chip--outline">Wallet Brick</span>
+      </div>
+      <div class="status" id="mp-status">Esperando preferencia...</div>
       <div class="wallet" id="wallet_container"></div>
     </div>
     <div class="panel panel--ghost">
-      <p class="eyebrow">Firebase</p>
-      <h2>Estado de conexión</h2>
-      <p class="muted">La app se aloja estáticamente, pero escribe y lee en vivo desde Firebase.</p>
-      <div class="status status--primary" id="firebase-status">Inicializando Firebase...</div>
-      <ul class="info-list">
-        <li>Firestore: colecciones <strong>books</strong>, <strong>meditations</strong>, <strong>gallery</strong>.</li>
-        <li>Storage: carpeta <strong>gallery/</strong> para imágenes cargadas.</li>
-        <li>Configura pagos en <strong>config/payment</strong>.</li>
-      </ul>
+      <div class="panel__head">
+        <div>
+          <p class="eyebrow">Firebase</p>
+          <h3>Estado de conexión</h3>
+          <p class="muted">Firestore: books, meditations, gallery. Storage: carpeta gallery/.</p>
+        </div>
+        <span class="chip chip--success" id="firebase-status">Inicializando...</span>
+      </div>
+      <div class="gallery-grid" id="gallery-list"></div>
     </div>
   </section>
 
-  <section id="panel" class="drawer" data-drawer>
-    <div class="drawer__header">
+  <section id="panel" class="admin">
+    <div class="admin__header">
       <div>
-        <p class="eyebrow">Panel en vivo</p>
-        <h2>Agregar recursos</h2>
+        <p class="eyebrow">Admin panel</p>
+        <h2>Gestión de realidad digital</h2>
       </div>
-      <button class="chip" data-close>×</button>
+      <div class="tabs">
+        <button class="tab active" data-tab="libros">Libros</button>
+        <button class="tab" data-tab="audios">Audios</button>
+        <button class="tab" data-tab="gallery">Zona test</button>
+      </div>
     </div>
-    <div class="drawer__grid">
+
+    <div class="admin__grid">
       <form id="book-form" class="form">
         <h4>Libro</h4>
-        <label>Nombre
-          <input name="title" placeholder="Título" required>
-        </label>
-        <label>URL
-          <input name="url" type="url" placeholder="https://" required>
-        </label>
-        <label>Descripción
-          <textarea name="description" rows="2" placeholder="Notas"></textarea>
-        </label>
-        <button class="button" type="submit">Guardar libro</button>
+        <div class="field-row">
+          <label>Título<input name="title" placeholder="Ej: El Despertar" required></label>
+          <label>Autor<input name="author" placeholder="Autor"></label>
+        </div>
+        <div class="field-row">
+          <label>Precio MXN<input name="priceMXN" type="number" min="0" step="0.01" placeholder="299"></label>
+          <label>Precio USD<input name="priceUSD" type="number" min="0" step="0.01" placeholder="15"></label>
+          <label>Descuento (%)<input name="discount" type="number" min="0" max="100" step="1" placeholder="0"></label>
+        </div>
+        <label>URL portada / Drive<input name="cover" type="url" placeholder="https://"></label>
+        <label>URL PDF<input name="url" type="url" placeholder="https://"></label>
+        <label>Descripción<textarea name="description" rows="3" placeholder="Notas"></textarea></label>
+        <div class="form__actions">
+          <button class="btn btn--primary" type="submit">Guardar en el éter</button>
+          <button class="btn btn--ghost" type="reset">Cancelar</button>
+        </div>
       </form>
 
       <form id="meditation-form" class="form">
         <h4>Meditación</h4>
-        <label>Nombre
-          <input name="title" placeholder="Meditación guiada" required>
-        </label>
-        <label>URL
-          <input name="url" type="url" placeholder="https://" required>
-        </label>
-        <label>Descripción
-          <textarea name="description" rows="2" placeholder="Notas"></textarea>
-        </label>
-        <button class="button" type="submit">Guardar meditación</button>
+        <div class="field-row">
+          <label>Título<input name="title" placeholder="Meditación guiada" required></label>
+          <label>Autor<input name="author" placeholder="Autor"></label>
+        </div>
+        <div class="field-row">
+          <label>Precio MXN<input name="priceMXN" type="number" min="0" step="0.01" placeholder="90"></label>
+          <label>Precio USD<input name="priceUSD" type="number" min="0" step="0.01" placeholder="5"></label>
+          <label>Descuento (%)<input name="discount" type="number" min="0" max="100" step="1" placeholder="0"></label>
+        </div>
+        <label>URL portada / cover<input name="cover" type="url" placeholder="https://"></label>
+        <label>URL audio/video<input name="url" type="url" placeholder="https://"></label>
+        <label>Descripción<textarea name="description" rows="3" placeholder="Notas"></textarea></label>
+        <div class="form__actions">
+          <button class="btn btn--primary" type="submit">Guardar frecuencia</button>
+          <button class="btn btn--ghost" type="reset">Cancelar</button>
+        </div>
       </form>
 
       <form id="gallery-form" class="form" enctype="multipart/form-data">
         <h4>Galería</h4>
-        <label>Título
-          <input name="title" placeholder="Imagen" required>
-        </label>
-        <label>Archivo
-          <input name="file" type="file" accept="image/*">
-        </label>
-        <label>URL (opcional si subes archivo)
-          <input name="url" type="url" placeholder="https://">
-        </label>
-        <label>Descripción
-          <textarea name="description" rows="2" placeholder="Notas"></textarea>
-        </label>
-        <button class="button" type="submit">Guardar imagen</button>
+        <label>Título<input name="title" placeholder="Imagen" required></label>
+        <label>Archivo<input name="file" type="file" accept="image/*"></label>
+        <label>URL (opcional si subes archivo)<input name="url" type="url" placeholder="https://"></label>
+        <label>Descripción<textarea name="description" rows="3" placeholder="Notas"></textarea></label>
+        <div class="form__actions">
+          <button class="btn btn--primary" type="submit">Guardar imagen</button>
+          <button class="btn btn--ghost" type="reset">Cancelar</button>
+        </div>
       </form>
     </div>
   </section>
 
   <footer class="footer">
-    <div>
-      <p class="eyebrow">Psicología Frecuencial</p>
-      <p class="muted">La misma experiencia visual que tu app en la nube, pero lista para publicar en cualquier hosting estático.</p>
-    </div>
-    <div class="footer__copy">Datos en Firebase · Cobros con Mercado Pago · Hecho con cariño</div>
+    <p class="eyebrow">Psicología Frecuencial</p>
+    <p class="muted">Sintonizando tu mente con el universo · Datos en Firebase · Cobros con Mercado Pago.</p>
   </footer>
 
   <script type="module" src="src/app.js"></script>
