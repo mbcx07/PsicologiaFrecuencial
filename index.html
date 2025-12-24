@@ -145,96 +145,115 @@
       </div>
     </div>
 
-    <div class="admin__grid">
-      <form id="book-form" class="form">
-        <h4>Libro</h4>
-        <div class="field-row">
-          <label>Título<input name="title" placeholder="Ej: El Despertar" required></label>
-          <label>Autor<input name="author" placeholder="Autor"></label>
-        </div>
-        <div class="field-row">
-          <label>Precio MXN<input name="priceMXN" type="number" min="0" step="0.01" placeholder="299"></label>
-          <label>Precio USD<input name="priceUSD" type="number" min="0" step="0.01" placeholder="15"></label>
-          <label>Descuento (%)<input name="discount" type="number" min="0" max="100" step="1" placeholder="0"></label>
-        </div>
-        <label>URL portada / Drive<input name="cover" type="url" placeholder="https://"></label>
-        <label>URL PDF<input name="url" type="url" placeholder="https://"></label>
-        <label>Descripción<textarea name="description" rows="3" placeholder="Notas"></textarea></label>
-        <div class="form__actions">
-          <button class="btn btn--primary" type="submit">Guardar en el éter</button>
-          <button class="btn btn--ghost" type="reset">Cancelar</button>
-        </div>
-      </form>
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
-      <form id="meditation-form" class="form">
-        <h4>Meditación</h4>
-        <div class="field-row">
-          <label>Título<input name="title" placeholder="Meditación guiada" required></label>
-          <label>Autor<input name="author" placeholder="Autor"></label>
+    <div class="tab-panel active" data-panel="libros">
+      <div class="admin__grid">
+        <form id="book-form" class="form">
+          <h4>Libro</h4>
+          <div class="field-row">
+            <label>Título<input name="title" placeholder="Ej: El Despertar" required></label>
+            <label>Autor<input name="author" placeholder="Autor"></label>
+          </div>
+          <div class="field-row">
+            <label>Precio MXN<input name="priceMXN" type="number" min="0" step="0.01" placeholder="299"></label>
+            <label>Precio USD<input name="priceUSD" type="number" min="0" step="0.01" placeholder="15"></label>
+            <label>Descuento (%)<input name="discount" type="number" min="0" max="100" step="1" placeholder="0"></label>
+          </div>
+          <label>URL portada / Drive<input name="cover" type="url" placeholder="https://"></label>
+          <label>URL PDF<input name="url" type="url" placeholder="https://"></label>
+          <label>Descripción<textarea name="description" rows="3" placeholder="Notas"></textarea></label>
+          <div class="form__actions">
+            <button class="btn btn--primary" type="submit">Guardar en el éter</button>
+            <button class="btn btn--ghost" type="reset">Cancelar</button>
+          </div>
+        </form>
+      </div>
+      <div class="admin__lists">
+        <div class="admin-list" id="list-books">
+          <div class="admin-list__head">
+            <h4>Libros publicados</h4>
+            <span class="chip chip--outline">En vivo</span>
+          </div>
+          <div class="admin-list__body" id="admin-books"></div>
         </div>
-        <div class="field-row">
-          <label>Precio MXN<input name="priceMXN" type="number" min="0" step="0.01" placeholder="90"></label>
-          <label>Precio USD<input name="priceUSD" type="number" min="0" step="0.01" placeholder="5"></label>
-          <label>Descuento (%)<input name="discount" type="number" min="0" max="100" step="1" placeholder="0"></label>
-        </div>
-        <label>URL portada / cover<input name="cover" type="url" placeholder="https://"></label>
-        <label>URL audio/video<input name="url" type="url" placeholder="https://"></label>
-        <label>Descripción<textarea name="description" rows="3" placeholder="Notas"></textarea></label>
-        <div class="form__actions">
-          <button class="btn btn--primary" type="submit">Guardar frecuencia</button>
-          <button class="btn btn--ghost" type="reset">Cancelar</button>
-        </div>
-      </form>
-
-      <form id="post-form" class="form" data-collection="posts">
-        <h4>Blog</h4>
-        <div class="field-row">
-          <label>Título<input name="title" placeholder="Entrada del blog" required></label>
-          <label>Categoría<input name="category" placeholder="Noticias"></label>
-        </div>
-        <label>URL portada / cover<input name="cover" type="url" placeholder="https://"></label>
-        <label>URL artículo<input name="url" type="url" placeholder="https://"></label>
-        <label>Descripción<textarea name="description" rows="3" placeholder="Resumen"></textarea></label>
-        <div class="form__actions">
-          <button class="btn btn--primary" type="submit">Publicar</button>
-          <button class="btn btn--ghost" type="reset">Cancelar</button>
-        </div>
-      </form>
-
-      <form id="gallery-form" class="form" enctype="multipart/form-data">
-        <h4>Galería</h4>
-        <label>Título<input name="title" placeholder="Imagen" required></label>
-        <label>Archivo<input name="file" type="file" accept="image/*"></label>
-        <label>URL (opcional si subes archivo)<input name="url" type="url" placeholder="https://"></label>
-        <label>Descripción<textarea name="description" rows="3" placeholder="Notas"></textarea></label>
-        <div class="form__actions">
-          <button class="btn btn--primary" type="submit">Guardar imagen</button>
-          <button class="btn btn--ghost" type="reset">Cancelar</button>
-        </div>
-      </form>
+      </div>
     </div>
 
-    <div class="admin__lists">
-      <div class="admin-list" id="list-books">
-        <div class="admin-list__head">
-          <h4>Libros publicados</h4>
-          <span class="chip chip--outline">En vivo</span>
-        </div>
-        <div class="admin-list__body" id="admin-books"></div>
+    <div class="tab-panel" data-panel="audios">
+      <div class="admin__grid">
+        <form id="meditation-form" class="form">
+          <h4>Meditación</h4>
+          <div class="field-row">
+            <label>Título<input name="title" placeholder="Meditación guiada" required></label>
+            <label>Autor<input name="author" placeholder="Autor"></label>
+          </div>
+          <div class="field-row">
+            <label>Precio MXN<input name="priceMXN" type="number" min="0" step="0.01" placeholder="90"></label>
+            <label>Precio USD<input name="priceUSD" type="number" min="0" step="0.01" placeholder="5"></label>
+            <label>Descuento (%)<input name="discount" type="number" min="0" max="100" step="1" placeholder="0"></label>
+          </div>
+          <label>URL portada / cover<input name="cover" type="url" placeholder="https://"></label>
+          <label>URL audio/video<input name="url" type="url" placeholder="https://"></label>
+          <label>Descripción<textarea name="description" rows="3" placeholder="Notas"></textarea></label>
+          <div class="form__actions">
+            <button class="btn btn--primary" type="submit">Guardar frecuencia</button>
+            <button class="btn btn--ghost" type="reset">Cancelar</button>
+          </div>
+        </form>
       </div>
-      <div class="admin-list" id="list-meditations">
-        <div class="admin-list__head">
-          <h4>Meditaciones publicadas</h4>
-          <span class="chip chip--outline">En vivo</span>
+      <div class="admin__lists">
+        <div class="admin-list" id="list-meditations">
+          <div class="admin-list__head">
+            <h4>Meditaciones publicadas</h4>
+            <span class="chip chip--outline">En vivo</span>
+          </div>
+          <div class="admin-list__body" id="admin-meditations"></div>
         </div>
-        <div class="admin-list__body" id="admin-meditations"></div>
       </div>
-      <div class="admin-list" id="list-posts">
-        <div class="admin-list__head">
-          <h4>Entradas del blog</h4>
-          <span class="chip chip--outline">En vivo</span>
+    </div>
+
+    <div class="tab-panel" data-panel="posts">
+      <div class="admin__grid">
+        <form id="post-form" class="form" data-collection="posts">
+          <h4>Blog</h4>
+          <div class="field-row">
+            <label>Título<input name="title" placeholder="Entrada del blog" required></label>
+            <label>Categoría<input name="category" placeholder="Noticias"></label>
+          </div>
+          <label>URL portada / cover<input name="cover" type="url" placeholder="https://"></label>
+          <label>URL artículo<input name="url" type="url" placeholder="https://"></label>
+          <label>Descripción<textarea name="description" rows="3" placeholder="Resumen"></textarea></label>
+          <div class="form__actions">
+            <button class="btn btn--primary" type="submit">Publicar</button>
+            <button class="btn btn--ghost" type="reset">Cancelar</button>
+          </div>
+        </form>
+      </div>
+      <div class="admin__lists">
+        <div class="admin-list" id="list-posts">
+          <div class="admin-list__head">
+            <h4>Entradas del blog</h4>
+            <span class="chip chip--outline">En vivo</span>
+          </div>
+          <div class="admin-list__body" id="admin-posts"></div>
         </div>
-        <div class="admin-list__body" id="admin-posts"></div>
+      </div>
+    </div>
+
+    <div class="tab-panel" data-panel="gallery">
+      <div class="admin__grid">
+        <form id="gallery-form" class="form" enctype="multipart/form-data">
+          <h4>Galería</h4>
+          <label>Título<input name="title" placeholder="Imagen" required></label>
+          <label>Archivo<input name="file" type="file" accept="image/*"></label>
+          <label>URL (opcional si subes archivo)<input name="url" type="url" placeholder="https://"></label>
+          <label>Descripción<textarea name="description" rows="3" placeholder="Notas"></textarea></label>
+          <div class="form__actions">
+            <button class="btn btn--primary" type="submit">Guardar imagen</button>
+            <button class="btn btn--ghost" type="reset">Cancelar</button>
+          </div>
+        </form>
       </div>
     </div>
   </section>

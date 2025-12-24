@@ -17,9 +17,10 @@ Landing estática con Firebase y cobros por Mercado Pago.
 ## Diseño y panel
 - La portada replica la experiencia de la versión desplegada en la nube: hero, cards de recursos y panel inferior para cargar contenido.
 - El héroe y las secciones ya no usan datos estáticos: toman en vivo las colecciones de Firestore.
-- Usa el panel inferior para publicar libros, meditaciones, entradas del blog e imágenes.
+- Usa el panel inferior (pestañas Libros, Audios, Blog y Zona test) para publicar libros, meditaciones, entradas del blog e imágenes.
 - Inicia sesión con Google usando la cuenta `moises.beltranx7@gmail.com` para habilitar edición y borrado.
 - Los elementos cargados aparecen al instante en la biblioteca, en el feed del blog y en el héroe destacado.
+- Si las colecciones están vacías, el cliente crea contenido de demo (libro, meditación, posts y una imagen) para que veas el diseño completo sin datos estáticos.
 
 ## Desarrollo local
 Al ser un sitio estático no necesitas dependencias. Abre `index.html` en el navegador o sirve la carpeta con tu servidor HTTP favorito.

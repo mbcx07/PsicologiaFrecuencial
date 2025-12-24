@@ -8,6 +8,7 @@ import {
   onSnapshot,
   doc,
   getDoc,
+  getDocs,
   deleteDoc,
   serverTimestamp,
 } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
@@ -47,8 +48,65 @@ const mpPublicKey = "APP_USR-7d17980f-c2ee-47d1-990c-de2e3d4c4fc0";
 const mp = new MercadoPago(mpPublicKey, { locale: "es-AR" });
 const placeholderCover = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==";
 const adminEmail = "moises.beltranx7@gmail.com";
+const defaultAuthor = "Moïses Beltrán Castro";
 let currentUser = null;
 let isAdmin = false;
+
+const demoContent = {
+  books: [
+    {
+      title: "Manual de Sintonía Verde",
+      author: defaultAuthor,
+      cover:
+        "https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?auto=format&fit=crop&w=900&q=80",
+      url: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+      description: "Bitácora de ejercicios para elevar la vibración y cuidar tu mente.",
+      priceMXN: 320,
+      priceUSD: 18,
+      discount: 10,
+    },
+  ],
+  meditations: [
+    {
+      title: "Meditación de coherencia cardíaca",
+      author: defaultAuthor,
+      cover:
+        "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=900&q=80",
+      url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
+      description: "Audio guiado de 12 minutos para respirar y alinear el campo emocional.",
+      priceMXN: 120,
+      priceUSD: 8,
+      discount: 0,
+    },
+  ],
+  posts: [
+    {
+      title: "Cómo limpiar tu campo mental en 5 minutos",
+      category: "Blog",
+      url: "https://medium.com",
+      cover:
+        "https://images.unsplash.com/photo-1520525003242-7c0b3c05f7f2?auto=format&fit=crop&w=1200&q=80",
+      description: "Rutina express para desintoxicar pensamientos y recalibrar tu mente.",
+      author: defaultAuthor,
+    },
+    {
+      title: "Física cuántica aplicada a la sanación",
+      category: "Investigación",
+      url: "https://dev.to",
+      cover:
+        "https://images.unsplash.com/photo-1545239351-1141bd82e8a6?auto=format&fit=crop&w=1200&q=80",
+      description: "Conceptos básicos para entender la intención como frecuencia creadora.",
+      author: defaultAuthor,
+    },
+  ],
+  gallery: [
+    {
+      title: "Sala de terapia frecuencial",
+      url: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=900&q=80",
+      description: "Ambiente de consulta con tonos verdes y luz cálida.",
+    },
+  ],
+};
 
 const firebaseStatus = document.getElementById("firebase-status");
 const mpStatus = document.getElementById("mp-status");
@@ -74,12 +132,24 @@ const authButton = document.getElementById("auth-button");
 const postForm = document.getElementById("post-form");
 const bookForm = document.getElementById("book-form");
 const meditationForm = document.getElementById("meditation-form");
+const tabs = document.querySelectorAll(".tab");
+const panels = document.querySelectorAll(".tab-panel");
+const toast = document.getElementById("toast");
 
 firebaseStatus.textContent = "Firebase listo";
 firebaseStatus.classList.add("chip--success");
 heroCover.src = placeholderCover;
 heroCover.classList.add("cover--empty");
 heroPrices.style.display = "none";
+
+const showToast = (message, tone = "success") => {
+  if (!toast) return;
+  toast.textContent = message;
+  toast.className = `toast toast--${tone} visible`;
+  setTimeout(() => {
+    toast.classList.remove("visible");
+  }, 2600);
+};
 
 const safeNumber = (value) => {
   const num = Number(value);
@@ -101,6 +171,26 @@ const editingState = {
   posts: null,
 };
 
+const seedDemoContent = async () => {
+  try {
+    const collections = Object.keys(demoContent);
+    for (const key of collections) {
+      const snap = await getDocs(collection(db, key));
+      if (snap.empty) {
+        await Promise.all(
+          demoContent[key].map((item) =>
+            addDoc(collection(db, key), { ...item, createdAt: serverTimestamp() })
+          )
+        );
+        showToast(`Demo cargada para ${key}`, "success");
+      }
+    }
+  } catch (err) {
+    console.error("No se pudo sembrar contenido demo", err);
+    showToast("Error cargando demo", "error");
+  }
+};
+
 const renderBlogCard = (data) => {
   const card = document.createElement("article");
   card.className = "blog-card";
@@ -110,7 +200,7 @@ const renderBlogCard = (data) => {
     <h4>${data.title ?? "Sin título"}</h4>
     <p class="muted">${data.description ?? "Contenido pendiente"}</p>
     <div class="blog-card__footer">
-      <span class="chip chip--outline">${data.author || "Moïses Beltrán Castro"}</span>
+      <span class="chip chip--outline">${data.author || defaultAuthor}</span>
       ${data.url ? `<a class="link" href="${data.url}" target="_blank" rel="noopener">Leer ahora</a>` : ""}
     </div>
   `;
@@ -128,7 +218,7 @@ const renderBlogStreamCard = (data) => {
     <h3>${data.title ?? "Artículo"}</h3>
     <p class="muted">${data.description ?? "Descripción pendiente"}</p>
     <div class="stream-card__actions">
-      <span class="chip">${data.author || "Moïses Beltrán Castro"}</span>
+      <span class="chip">${data.author || defaultAuthor}</span>
       ${data.url ? `<a class="btn btn--ghost" href="${data.url}" target="_blank" rel="noopener">Leer</a>` : ""}
     </div>
   `;
@@ -145,7 +235,7 @@ const renderResourceCard = (data) => {
   card.innerHTML = `
     ${discount ? `<span class="badge badge--discount">-${discount}%</span>` : ""}
     ${cover ? `<img src="${cover}" alt="${data.title ?? "Portada"}">` : ""}
-    <div class="author">${data.author || "Moïses Beltrán Castro"}</div>
+    <div class="author">${data.author || defaultAuthor}</div>
     <h3>${data.title ?? "Recurso"}</h3>
     <p class="desc">${data.description ?? "Descripción pendiente"}</p>
     <div class="pricing">
@@ -201,6 +291,7 @@ const renderAdminRow = (data, collectionKey, formRef, containerRef) => {
     const ok = confirm("¿Eliminar este elemento?");
     if (!ok) return;
     await deleteDoc(doc(db, collectionKey, data.id));
+    showToast("Eliminado", "success");
     if (editingState[collectionKey] === data.id) {
       resetForm(formRef, collectionKey);
     }
@@ -215,6 +306,19 @@ const sections = {
 };
 
 const blogList = document.getElementById("blog-list");
+
+const setActiveTab = (key) => {
+  tabs.forEach((tab) => {
+    tab.classList.toggle("active", tab.dataset.tab === key);
+  });
+  panels.forEach((panel) => {
+    panel.classList.toggle("active", panel.dataset.panel === key);
+  });
+};
+tabs.forEach((tab) =>
+  tab.addEventListener("click", () => setActiveTab(tab.dataset.tab))
+);
+setActiveTab("libros");
 
 const updateFormLock = () => {
   const reason = isAdmin
@@ -277,7 +381,7 @@ const updateHero = (items) => {
   highlightPill.textContent = latest.title ?? "Nuevo recurso";
   heroTitle.textContent = latest.title ?? "Recurso";
   heroDesc.textContent = latest.description ?? "";
-  heroAuthor.textContent = latest.author || "Moïses Beltrán Castro";
+  heroAuthor.textContent = latest.author || defaultAuthor;
   heroCategory.textContent = latest.category === "meditations" ? "Meditación" : "Libro";
   heroCategory.classList.remove("chip--outline");
 
@@ -405,7 +509,10 @@ const renderCollections = () => {
   listen("gallery");
   listen("posts");
 
-  blogRefresh?.addEventListener("click", rebuildBlog);
+  blogRefresh?.addEventListener("click", () => {
+    rebuildBlog();
+    showToast("Blog actualizado", "success");
+  });
 };
 
 const uploadFileIfNeeded = async (file) => {
@@ -416,42 +523,55 @@ const uploadFileIfNeeded = async (file) => {
 };
 
 const handleSubmit = (collectionName, form, needsUpload, key) => {
+  const friendly = {
+    books: "Libro",
+    meditations: "Meditación",
+    posts: "Entrada",
+    gallery: "Imagen",
+  };
   form?.addEventListener("submit", async (e) => {
     e.preventDefault();
     if (!isAdmin) {
-      alert("Inicia sesión con tu Google autorizado para publicar.");
+      showToast("Inicia sesión con tu Google autorizado para publicar.", "error");
       return;
     }
-    const formData = new FormData(form);
-    const payload = {
-      title: formData.get("title"),
-      url: formData.get("url") || null,
-      cover: formData.get("cover") || null,
-      author: formData.get("author") || currentUser?.email || null,
-      category: formData.get("category") || null,
-      priceMXN: safeNumber(formData.get("priceMXN")),
-      priceUSD: safeNumber(formData.get("priceUSD")),
-      discount: safeNumber(formData.get("discount")),
-      description: formData.get("description") || null,
-      createdAt: editingState[key] ? undefined : serverTimestamp(),
-    };
+    try {
+      const formData = new FormData(form);
+      const payload = {
+        title: formData.get("title"),
+        url: formData.get("url") || null,
+        cover: formData.get("cover") || null,
+        author: formData.get("author") || currentUser?.email || defaultAuthor,
+        category: formData.get("category") || null,
+        priceMXN: safeNumber(formData.get("priceMXN")),
+        priceUSD: safeNumber(formData.get("priceUSD")),
+        discount: safeNumber(formData.get("discount")),
+        description: formData.get("description") || null,
+        createdAt: editingState[key] ? undefined : serverTimestamp(),
+      };
 
-    if (needsUpload) {
-      const file = form.elements.namedItem("file")?.files?.[0];
-      const uploadedUrl = await uploadFileIfNeeded(file);
-      if (uploadedUrl) payload.url = uploadedUrl;
-    }
+      if (needsUpload) {
+        const file = form.elements.namedItem("file")?.files?.[0];
+        const uploadedUrl = await uploadFileIfNeeded(file);
+        if (uploadedUrl) payload.url = uploadedUrl;
+      }
 
-    const docId = editingState[key];
-    if (docId) {
-      const sanitized = Object.fromEntries(
-        Object.entries(payload).filter(([, v]) => v !== undefined)
-      );
-      await updateDoc(doc(db, collectionName, docId), sanitized);
-    } else {
-      await addDoc(collection(db, collectionName), payload);
+      const docId = editingState[key];
+      if (docId) {
+        const sanitized = Object.fromEntries(
+          Object.entries(payload).filter(([, v]) => v !== undefined)
+        );
+        await updateDoc(doc(db, collectionName, docId), sanitized);
+        showToast(`${friendly[collectionName] || "Elemento"} actualizado`, "success");
+      } else {
+        await addDoc(collection(db, collectionName), payload);
+        showToast(`${friendly[collectionName] || "Elemento"} publicado`, "success");
+      }
+      resetForm(form, key);
+    } catch (err) {
+      console.error(err);
+      showToast("Error guardando", "error");
     }
-    resetForm(form, key);
   });
 };
 
@@ -461,18 +581,33 @@ handleSubmit("gallery", document.getElementById("gallery-form"), true, "gallery"
 handleSubmit("posts", postForm, false, "posts");
 
 renderCollections();
+seedDemoContent();
 
 onAuthStateChanged(auth, (user) => {
   currentUser = user;
   isAdmin = Boolean(user?.email === adminEmail);
   updateFormLock();
+  if (user && isAdmin) {
+    showToast("Acceso admin activo", "success");
+  } else if (user && !isAdmin) {
+    showToast("Cuenta sin permisos de edición", "error");
+  } else {
+    showToast("Sesión cerrada", "success");
+  }
 });
 
 authButton?.addEventListener("click", async () => {
   if (isAdmin) {
     await signOut(auth);
+    return;
   } else {
-    await signInWithPopup(auth, provider);
+    try {
+      await signInWithPopup(auth, provider);
+      showToast("Sesión iniciada", "success");
+    } catch (err) {
+      console.error(err);
+      showToast("Error al iniciar sesión", "error");
+    }
   }
 });
 
